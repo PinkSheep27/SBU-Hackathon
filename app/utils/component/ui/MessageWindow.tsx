@@ -50,8 +50,8 @@ export default function MessageWindow({ history, isLoading }: MessageWindowProps
                                 </div>
                             )}
                         </div>
-                    );
-                })}
+                        );
+                    })}
                 {isLoading && (
                     <div className="flex justify-start mb-4">
                         <div className="mr-2">
@@ -67,10 +67,24 @@ export default function MessageWindow({ history, isLoading }: MessageWindowProps
                         </div>
                     </div>
                 )}
-
-                {/* Invisible element to help scroll to bottom */}
-                <div ref={messageEndRef} />
-            </div>
+        
+                {isLoading && (
+                    <div className="flex justify-start">
+                        <div className="mr-2">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray">
+                                <Bot size={15} className="text-gray-700" />
+                            </div>
+                        </div>
+                        <div className="px-4 py-2 shadow-sm rounded-lg bg-white text-gray-800 rounded-bl-none max-w-xs sm:max-w-md">
+                            <div className="whitespace-pre-wrap break-words">
+                                <span>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+        {/* Invisible element to help scroll to bottom */}
+        <div ref={messageEndRef} />
         </div>
+    </div>
     );
 }

@@ -9,9 +9,9 @@ export default function Home() {
     >
       <header className="absolute top-6 left-8 right-8 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
+          
+          src="/logo.svg"
+          alt="logo.js logo"
           width={100}
           height={20}
           priority
@@ -19,6 +19,9 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <Link href="/Dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             Dashboard
+          </Link>
+          <Link href="/cards" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Cards
           </Link>
         </div>
       </header>
@@ -62,13 +65,10 @@ export default function Home() {
           style={{ backgroundColor: "#DEE5D4" }}
           className="w-full rounded-xl mt-32"
         >
-          {/* <section className="mt-32 w-full flex flex-col items-start gap-12"> */}
           <section className="px-16 py-18 flex flex-col items-start gap-12 max-w-[1200px] mx-auto">
-            {/* <div> */}
             <h2 className="text-[28px] font-semibold text-black dark:text-zinc-50 leading-9">
               Guide:
             </h2>
-            {/* </div> */}
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 w-full">
               <div

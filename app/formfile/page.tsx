@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import FormPage from './FormPage';
+import { CardData } from "../exportType/types";
 import { ChatSetting } from "../exportType/types";
 import { FormData, PROFICIENCY_LEVELS } from './formTypes';
 import { saveProject } from '../utils/storage';
@@ -41,7 +42,6 @@ const getInitialState = () => {
   };
 };
 
-
 const AI_SETTINGS: ChatSetting = {
   temperature: 1,
   model: "gemini-2.5-pro",
@@ -56,19 +56,15 @@ const AI_SETTINGS: ChatSetting = {
 };
 
 export default function Home() {
-
   const [initialState] = useState(getInitialState);
   const [showForm, setShowForm] = useState(initialState.showForm);
   const [formData, setFormData] = useState<FormData>(initialState.data);
   const [ideaResponse, setIdeaResponse] = useState<string>("");
-
   const router = useRouter();
 
   const handleFormSubmitFromFormPage = (submittedData: FormData) => {
     const savedProject = saveProject(submittedData);
-
     if (typeof window !== 'undefined') localStorage.removeItem('formData');
-
     setFormData(submittedData);
     setShowForm(false);
     generateIdeas(submittedData, savedProject.id);
@@ -96,7 +92,6 @@ export default function Home() {
     
     Using the SYSTEM INSTRUCTIONS, generate 5 project ideas based on the data above.`;
 
-    // 3. API Call
     try {
       setIdeaResponse("Generating ideas... Please wait.");
 
@@ -132,14 +127,12 @@ export default function Home() {
     }
   }, [router]);
 
-  // Replaced useEffect
   useEffect(() => {
     if (initialState.runEffect) {
-      //generateIdeas(initialState.data, "some-resumed-id");
+      // generateIdeas(initialState.data, "some-resumed-id");
     }
   }, [initialState, generateIdeas]);
 
-  // --- JSX Rendering ---
   return (
     <main className="min-h-screen bg-gray-50 flex items-start justify-center p-4 sm:p-6 font-inter">
       <div className="w-full max-w-2xl bg-white p-8 shadow-2xl rounded-xl mt-8">

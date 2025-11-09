@@ -15,26 +15,23 @@ export default function Dashboard() {
     setProjects(storedProjects);
   }, []);
 
-  // 5. Sorting logic now uses the state variable
   const sortedProjects = [...projects].sort((a, b) => {
-    const dateA = new Date(a.id).getTime(); // Use 'id' (timestamp) for sorting
+    const dateA = new Date(a.id).getTime();
     const dateB = new Date(b.id).getTime();
 
     if (sortOrder === "newest") {
-      return dateB - dateA; // Newest first
+      return dateB - dateA;
     } else {
-      return dateA - dateB; // Oldest first
+      return dateA - dateB;
     }
   });
 
-  // 6. Filter the sorted projects
   const filtered = sortedProjects.filter((p) =>
     p.title.toLowerCase().includes(query.toLowerCase())
   );
 
-  // 7. Fix the "Create" button link
   const handleCreateClick = () => {
-    window.location.href = "/formfile"; // Changed from "/dashbaord/create"
+    window.location.href = "/formfile";
   };
 
   const toggleSortOrder = () => {
@@ -77,6 +74,12 @@ export default function Dashboard() {
           >
             Settings
           </p>
+          <Link
+            href="/auth/logout"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            Logout
+          </Link>
         </nav>
       </aside>
 
@@ -106,25 +109,27 @@ export default function Dashboard() {
         </header>
 
         <main className="max-w-7xl w-full mx-auto px-6 py-10">
-          <h1 className="text-2xl font-semibold text-black dark:text-zinc-50 mb-4">
-            Project Names
-          </h1>
-          <button
-            type="button"
-            onClick={toggleSortOrder}
-            className="px-3 py-1 text-sm font-medium border rounded-md"
-            style={{
-              color: '#333',
-              backgroundColor: '#F7F7F7',
-              borderColor: '#D1D1D1'
-            }}
-          >
-            Sort by: {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-          </button>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
+              Project Names
+            </h1>
+            <button
+              type="button"
+              onClick={toggleSortOrder}
+              className="px-3 py-1 text-sm font-medium border rounded-md"
+              style={{
+                color: '#333',
+                backgroundColor: '#F7F7F7',
+                borderColor: '#D1D1D1'
+              }}
+            >
+              Sort by: {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+            </button>
+          </div>
 
           <section>
             <ul className="space-y-3">
-              {filtered.map((project, index) => (
+              {filtered.map((project) => (
                 <li
                   key={project.id}
                   className="flex justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-md text-zinc-800 dark:text-zinc-100"

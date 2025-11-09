@@ -10,21 +10,21 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function chatToGemini(
-    userMessage: string,
-    history: ChatHistory,
-    settings: ChatSetting
-): Promise<string> {
-    const model = genAI.getGenerativeModel({
-        model: settings.model || "gemini-2.5-flash",
-        systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summery first before going to detail",
-    });
-
-    const generationConfig: GenerateConfig = {
-        temperature: settings.temperature || 1,
-        topP: 0.9,
-        responseMimeType: "text/plain",
-        maxOutputTokens: 1900, // Increased to allow for longer responses
-    }
+    userMessage:string ,
+    history:ChatHistory, 
+    settings:ChatSetting
+):Promise<string>{
+        const model = genAI.getGenerativeModel({
+            model:settings.model || "gemini-2.5-flash",
+            systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summery first before going to detail",
+            });
+        
+        const generationConfig:GenerateConfig = {
+            temperature : settings.temperature || 1,
+            topP : 0.9,
+            responseMimeType: "text/plain",
+            maxOutputTokens: 1900, // Increased to allow for longer responses
+        }
 
     const chatSession = model.startChat({
         generationConfig,
@@ -35,8 +35,12 @@ export async function chatToGemini(
         const result = await chatSession.sendMessage(userMessage);
         return result.response.text();
     }
-    catch (error) {
-        console.error("Gemini API Error:", error);
+    catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error in chatToGemini:", error.name, error.message, error);
+        } else {
+            console.error("Unknown error in chatToGemini:", error);
+        }
         throw error;
     }
 }

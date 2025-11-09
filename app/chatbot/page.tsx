@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import ChatInput from "../utils/component/ui/ChatInput";
 import MessageWindow from "../utils/component/ui/MessageWindow";
 import { ChatHistory, ChatSetting, Message, MessageRole } from "@/app/exportType/types";
 import { getChatSessionByProjectId, saveChatSession } from "../utils/storage";
-
 
 function getInitialChatState(
   projectId: string | null,
@@ -22,7 +21,16 @@ function getInitialChatState(
 }
 
 export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading chat...</div>}>
+      <ChatbotContent />
+    </Suspense>
+  );
+}
+
+function ChatbotContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const projectId = searchParams.get('projectId');
   const projectTitle = searchParams.get('projectTitle');
   const cardTitle = searchParams.get('cardTitle');
@@ -30,18 +38,17 @@ export default function Home() {
 
   const [history, setHistory] = useState<ChatHistory>(() => getInitialChatState(projectId));
   const [loading, setLoading] = useState(false);
-  const historyRef = useRef<ChatHistory>(history); // Create a ref for history
+  const historyRef = useRef<ChatHistory>(history);
   const [settings] = useState<ChatSetting>({
     temperature: 1,
     model: "gemini-2.5-pro",
     systemInstructions: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
-
   });
 
   const initialMessageSent = useRef(false);
 
   useEffect(() => {
-    historyRef.current = history; // Keep the ref updated with the latest history
+    historyRef.current = history;
     if (history.length > 0 && projectId && projectTitle) {
       saveChatSession(projectId, projectTitle, history);
     }
@@ -63,7 +70,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userMessage: message,
-          history: historyRef.current, // Use the ref for history *before* the new user message
+          history: historyRef.current,
           settings: settings,
         }),
       });
@@ -73,7 +80,6 @@ export default function Home() {
 
       if (data.error) {
         console.error("AI Error:", data.error);
-        // Add an error message to chat
         const aiErrorMessage: Message = {
           role: "model",
           parts: [{ text: `Error: ${data.error}` }],
@@ -87,8 +93,6 @@ export default function Home() {
         parts: [{ text: data.response }],
       };
 
-      // Set the final history with the AI response
-      // This will trigger the useEffect to save
       setHistory(prevHistory => [...prevHistory, aiMessage]);
 
     } catch (error) {
@@ -100,16 +104,11 @@ export default function Home() {
       };
       setHistory(prevHistory => [...prevHistory, aiErrorMessage]);
     }
-  }, [settings, projectId, projectTitle]); // Added projectId and projectTitle
+  }, [settings, projectId, projectTitle]);
 
-  // This effect handles the *very first* message when selecting a card
   useEffect(() => {
-    // Only run if:
-    // 1. We have a cardTitle (meaning we came from the cards page)
-    // 2. The history is empty (it's a new chat)
-    // 3. We haven't already tried to send this (initialMessageSent ref)
     if (cardTitle && cardSummary && history.length === 0 && !initialMessageSent.current) {
-      initialMessageSent.current = true; // Mark as "attempted"
+      initialMessageSent.current = true;
       setLoading(true);
 
       const message = `Explain the project titled '${cardTitle}' with the summary '${cardSummary}' in detail, and suggest suitable roles for a team working on it.`;
@@ -119,8 +118,6 @@ export default function Home() {
         parts: [{ text: message }],
       };
 
-      // Add user message to history
-      // The useEffect for 'history' will save this
       setHistory([newUserMessage]);
 
       const sendInitialApiRequest = async () => {
@@ -130,7 +127,7 @@ export default function Home() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userMessage: message,
-              history: [], // Send empty history for the first message
+              history: [],
               settings: settings,
             }),
           });
@@ -140,6 +137,7 @@ export default function Home() {
 
           if (data.error) {
             console.error("AI Error:", data.error);
+            setLoading(false);
             return;
           }
 
@@ -148,8 +146,6 @@ export default function Home() {
             parts: [{ text: data.response }],
           };
 
-          // Add AI response
-          // The useEffect for 'history' will save this new state
           setHistory((prevHistory) => [...prevHistory, aiMessage]);
         } catch (error) {
           console.error("Request Failed:", error);
@@ -161,10 +157,14 @@ export default function Home() {
     }
   }, [cardTitle, cardSummary, history.length, settings, projectId, projectTitle]);
 
-
   return (
     <div className="flex flex-col py-32">
-      {/* Pass loading state to MessageWindow */}
+      <button
+        onClick={() => router.push('/Dashboard')}
+        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Exit
+      </button>
       <MessageWindow history={history} isLoading={loading} />
       <ChatInput onSend={handleSend} onOpenSettings={() => { }} />
     </div>
