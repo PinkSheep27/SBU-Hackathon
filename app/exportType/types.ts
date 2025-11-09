@@ -19,7 +19,7 @@ export interface GenerateConfig{
 export interface ChatSetting{
     temperature :number;
     model: string;
-    sysTemInstructions: string;
+    systemInstruction: string;
 }
 
 export interface CardData {

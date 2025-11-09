@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ProtectedNavButton from "../components/ProtectedNavButton";
 import Link from 'next/link';
+import { style } from 'framer-motion/client';
+
 
 export default function Page() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <header className="absolute top-6 left-8 right-8 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300">
+      <header className="absolute top-6 left-8 right-8 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300 background-blue-300">
         <Image
           className=""
           src="/logo.svg"
@@ -19,10 +21,10 @@ export default function Page() {
           priority
         />
         <div  className="flex items-center gap-4">
-          <Link href = "/auth/login" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <Link href = "/auth/login" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors container">
             Sign in
           </Link>
-          <Link href = "/auth/logout" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <Link href = "/auth/logout" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors container">
             Log out
           </Link>
         </div>

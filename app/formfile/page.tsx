@@ -34,7 +34,7 @@ export default function Home() {
   const [settings] = useState<ChatSetting>({
     temperature: 1,
     model: "gemini-2.5-flash-lite",
-    sysTemInstructions: `You are an elite hackathon idea generator. Your task is to choose at lease two track and generate five different creative, feasible, and relevant project idea.
+    systemInstruction: `You are an elite hackathon idea generator. Your task is to choose at lease two track and generate five different creative, feasible, and relevant project idea.
 The output MUST be in Markdown format and strictly follow this structure:
 ### Project Idea Title
 **Track** [print out the track you used]
