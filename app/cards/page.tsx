@@ -58,7 +58,7 @@ const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) =>
   return (
     <div
       className="grid h-screen w-full place-items-center bg-orange-100"
-    //   -gradient-to-tr from-orange-200 to-orange-100
+      //   -gradient-to-tr from-orange-200 to-orange-100
       style={{
         backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'
           viewBox='0 0 32 32' width='32' height='32' fill='none'

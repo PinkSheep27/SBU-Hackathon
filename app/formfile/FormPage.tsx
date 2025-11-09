@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 
-import { 
-    FormData, 
-    PROFICIENCY_LEVELS 
+import {
+  FormData,
+  PROFICIENCY_LEVELS
 } from './formTypes'; // Ensure path is correct
 
 interface FormPageProps {
@@ -16,9 +16,9 @@ const FormPage: React.FC<FormPageProps> = ({ onFormSubmit }) => {
     Hackathon: '',
     mainTheme: '',
     tracksStack: [''],
-    students: [{ 
-      studentName: '', 
-      skills: [{ skillName: '', proficiency: PROFICIENCY_LEVELS[1] }] 
+    students: [{
+      studentName: '',
+      skills: [{ skillName: '', proficiency: PROFICIENCY_LEVELS[1] }]
     }],
   });
 
@@ -121,12 +121,12 @@ const FormPage: React.FC<FormPageProps> = ({ onFormSubmit }) => {
               <label htmlFor="hackathonName" className="block text-sm font-medium text-gray-700 mb-1">
                 Hackathon Name
               </label>
-              <input 
+              <input
                 id="hackathonName"
                 required
                 type="text"
                 placeholder="e.g., Google Code Jam"
-                name="Hackathon" 
+                name="Hackathon"
                 value={formData.Hackathon}
                 onChange={handleChange}
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
@@ -142,7 +142,7 @@ const FormPage: React.FC<FormPageProps> = ({ onFormSubmit }) => {
                 required
                 type="text"
                 placeholder="e.g., Sustainability or AI Ethics"
-                name="mainTheme" 
+                name="mainTheme"
                 value={formData.mainTheme}
                 onChange={handleChange}
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
@@ -161,7 +161,7 @@ const FormPage: React.FC<FormPageProps> = ({ onFormSubmit }) => {
                     type="text"
                     required
                     placeholder={`Tracks #${index + 1}`}
-                    name={`tracksStack-${index}`} 
+                    name={`tracksStack-${index}`}
                     value={tracks}
                     onChange={(e) => handleTracksChange(e, index)}
                     className="flex-grow px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 transition duration-150"

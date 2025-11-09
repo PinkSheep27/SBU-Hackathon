@@ -4,16 +4,16 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import ChatInput from "../utils/component/ui/ChatInput";
 import MessageWindow from "../utils/component/ui/MessageWindow";
-import { ChatHistory, ChatSetting, Message , MessageRole } from "@/app/exportType/types";
+import { ChatHistory, ChatSetting, Message, MessageRole } from "@/app/exportType/types";
 
-export default function Home(){
+export default function Home() {
   const [history, setHistory] = useState<ChatHistory>([])
   const historyRef = useRef<ChatHistory>([]); // Create a ref for history
   const [settings] = useState<ChatSetting>({
-    temperature:1,
-    model:"gemini-2.5-pro",
-    sysTemInstructions:"you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
-    
+    temperature: 1,
+    model: "gemini-2.5-pro",
+    sysTemInstructions: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
+
   });
   const searchParams = useSearchParams();
   const initialMessageSent = useRef(false);
@@ -22,22 +22,22 @@ export default function Home(){
     historyRef.current = history; // Keep the ref updated with the latest history
   }, [history]);
 
-  const handleSend = useCallback(async(message:string)=>{
-    const newUserMessage:Message = {
-      role:"user",
-      parts:[{text:message}],
+  const handleSend = useCallback(async (message: string) => {
+    const newUserMessage: Message = {
+      role: "user",
+      parts: [{ text: message }],
     };
 
     setHistory(prevHistory => {
       const currentHistory = [...prevHistory, newUserMessage];
-      
+
       const sendApiRequest = async () => {
-        try{
+        try {
           const response = await fetch("/api/chat", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-              },
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               userMessage: message,
               history: historyRef.current, // Use the ref for history
@@ -58,8 +58,8 @@ export default function Home(){
           };
 
           setHistory(prevHistory => [...prevHistory, aiMessage]);
-          
-        } 
+
+        }
         catch (error) {
           console.error("Request Failed:", error);
         }
@@ -77,7 +77,7 @@ export default function Home(){
 
       if (title && summary) {
         const message = `Explain the project titled '${title}' with the summary '${summary}' in detail, and suggest suitable roles for a team working on it.`;
-        
+
         const newUserMessage: Message = {
           role: "user",
           parts: [{ text: message }],
@@ -129,7 +129,7 @@ export default function Home(){
   return (
     <div className="flex flex-col py-32">
       <MessageWindow history={history} />
-      <ChatInput onSend={handleSend} onOpenSettings={() => {}} />
+      <ChatInput onSend={handleSend} onOpenSettings={() => { }} />
     </div>
   );
 }

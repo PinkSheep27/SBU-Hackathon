@@ -21,9 +21,8 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-black font-sans transition-all duration-300">
       <aside
-        className={`${
-          sideBarOpen ? "w-64" : "w-16"
-        } bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300 flex flex-col`}
+        className={`${sideBarOpen ? "w-64" : "w-16"
+          } bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300 flex flex-col`}
       >
         <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
           {sideBarOpen && (
@@ -41,9 +40,8 @@ export default function Dashboard() {
         </div>
 
         <nav
-          className={`flex flex-col p-4 gap-3 text-zinc-700 dark:text-zinc-300 transition-opacity duration-200 ${
-            sideBarOpen ? "opacity-100" : "opacity-0"
-          }`}
+          className={`flex flex-col p-4 gap-3 text-zinc-700 dark:text-zinc-300 transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
+            }`}
         >
           <Link
             href="/"

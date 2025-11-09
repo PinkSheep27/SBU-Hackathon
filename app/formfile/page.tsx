@@ -41,35 +41,35 @@ The output MUST be in Markdown format and strictly follow this structure:
 **Concept:** [A concise, single paragraph description of the product and its primary function.]`,
   });
 
-const parseAiResponse = (markdownString: string): CardData[] => {
-  console.log("Raw AI Response:", markdownString);
-  const ideas: CardData[] = [];
-  const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
+  const parseAiResponse = (markdownString: string): CardData[] => {
+    console.log("Raw AI Response:", markdownString);
+    const ideas: CardData[] = [];
+    const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
 
-  ideaBlocks.forEach((block, index) => {
-    // Match title: anything from the start of the block until the first newline or the start of "**Track**"
-    const titleMatch = block.match(/^(.*?)(?=\n\*\*Track\*\*|$)/s);
-    // Match track: "**Track**" followed by optional whitespace and then capture everything until the next "**Concept**" or end of block/line
-    const trackMatch = block.match(/\*\*Track\*\*\s*:\s*(.*?)(?=\n\*\*Concept\*\*|$)/s); // Added ':' and made whitespace more flexible
-    // Match concept: "**Concept:**" followed by optional whitespace and then capture everything until the end of the block
-    const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
+    ideaBlocks.forEach((block, index) => {
+      // Match title: anything from the start of the block until the first newline or the start of "**Track**"
+      const titleMatch = block.match(/^(.*?)(?=\n\*\*Track\*\*|$)/s);
+      // Match track: "**Track**" followed by optional whitespace and then capture everything until the next "**Concept**" or end of block/line
+      const trackMatch = block.match(/\*\*Track\*\*\s*:\s*(.*?)(?=\n\*\*Concept\*\*|$)/s); // Added ':' and made whitespace more flexible
+      // Match concept: "**Concept:**" followed by optional whitespace and then capture everything until the end of the block
+      const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
 
-    const title = titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`;
-    const summary = conceptMatch ? conceptMatch[1].trim() : "No concept provided.";
-    const tracksRaw = trackMatch ? trackMatch[1].trim() : "";
-    console.log("tracksRaw:", tracksRaw); // Added console.log for debugging
-    const tracks = tracksRaw.split(',').map(track => track.trim()).filter(track => track !== '');
+      const title = titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`;
+      const summary = conceptMatch ? conceptMatch[1].trim() : "No concept provided.";
+      const tracksRaw = trackMatch ? trackMatch[1].trim() : "";
+      console.log("tracksRaw:", tracksRaw); // Added console.log for debugging
+      const tracks = tracksRaw.split(',').map(track => track.trim()).filter(track => track !== '');
 
-    ideas.push({
-      id: index + 1,
-      title,
-      tracks,
-      summary,
+      ideas.push({
+        id: index + 1,
+        title,
+        tracks,
+        summary,
+      });
     });
-  });
-  console.log("Parsed Cards:", ideas);
-  return ideas;
-};
+    console.log("Parsed Cards:", ideas);
+    return ideas;
+  };
 
   const handleFormSubmitFromFormPage = (submittedData: FormData) => {
     setFormData(submittedData);
@@ -80,14 +80,14 @@ const parseAiResponse = (markdownString: string): CardData[] => {
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const generateIdeas = useCallback(async (dataToProcess: FormData) => {
     const submissionData: FormData = {
-        ...dataToProcess,
-        tracksStack: dataToProcess.tracksStack.filter(tracks => tracks.trim() !== ''),
-        students: dataToProcess.students
-            .map(student => ({
-                ...student,
-                skills: student.skills.filter(skill => skill.skillName.trim() !== ''),
-            }))
-            .filter(student => student.studentName.trim() !== '' || student.skills.length > 0),
+      ...dataToProcess,
+      tracksStack: dataToProcess.tracksStack.filter(tracks => tracks.trim() !== ''),
+      students: dataToProcess.students
+        .map(student => ({
+          ...student,
+          skills: student.skills.filter(skill => skill.skillName.trim() !== ''),
+        }))
+        .filter(student => student.studentName.trim() !== '' || student.skills.length > 0),
     };
 
     const prompt = `
@@ -95,46 +95,46 @@ const parseAiResponse = (markdownString: string): CardData[] => {
     Main Theme: ${submissionData.mainTheme}
     Required Tracks Stack: ${submissionData.tracksStack.join(', ')}
     Team Members and Skills: ${submissionData.students.map(s =>
-        `${s.studentName || 'Unamed Member'} (Skills: ${s.skills.map(sk => `${sk.skillName} - ${sk.proficiency}`).join(', ')})`
+      `${s.studentName || 'Unamed Member'} (Skills: ${s.skills.map(sk => `${sk.skillName} - ${sk.proficiency}`).join(', ')})`
     ).join('; ')}
 
     Using the SYSTEM INSTRUCTIONS, generate 5 project ideas based on the data above.`;
 
     try {
-        setIdeaResponse("Generating ideas... Please wait.");
-        setGeneratedCards([]); // Clear previous cards
-        const response = await fetch("/api/generate-idea", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                settings: settings,
-            }),
-        });
+      setIdeaResponse("Generating ideas... Please wait.");
+      setGeneratedCards([]); // Clear previous cards
+      const response = await fetch("/api/generate-idea", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          settings: settings,
+        }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.error || !response.ok) {
-            console.error("AI Error:", data.error);
-            setIdeaResponse(`Error: Failed to generate idea. ${data.error || response.statusText}`);
-            return;
-        }
+      if (data.error || !response.ok) {
+        console.error("AI Error:", data.error);
+        setIdeaResponse(`Error: Failed to generate idea. ${data.error || response.statusText}`);
+        return;
+      }
 
-        setIdeaResponse(data.response);
-        const parsedCards = parseAiResponse(data.response);
-        setGeneratedCards(parsedCards);
+      setIdeaResponse(data.response);
+      const parsedCards = parseAiResponse(data.response);
+      setGeneratedCards(parsedCards);
 
     } catch (error) {
-        console.error("Request Failed:", error);
-        let errorMessage = "An unknown error occurred.";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        } else if (typeof error === 'string') {
-            errorMessage = error;
-        }
-        setIdeaResponse(`A network error occurred. Please try again. Details: ${errorMessage}`);
+      console.error("Request Failed:", error);
+      let errorMessage = "An unknown error occurred.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      setIdeaResponse(`A network error occurred. Please try again. Details: ${errorMessage}`);
     }
   }, [setIdeaResponse, setGeneratedCards, settings, parseAiResponse]);
 
@@ -165,12 +165,12 @@ const parseAiResponse = (markdownString: string): CardData[] => {
                   Generated Project Idea 💡
                 </h1>
                 <div className="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <h2 className="text-xl font-bold text-gray-700 mb-2">Generated Ideas:</h2>
-                    <div
-                        className="prose max-w-none"
-                        dangerouslySetInnerHTML={{ __html: ideaResponse.replace(/\n/g, '<br/>') }}
-                    />
-                    {ideaResponse === "" && <p className="text-gray-500">Submit the form to generate project ideas.</p>}
+                  <h2 className="text-xl font-bold text-gray-700 mb-2">Generated Ideas:</h2>
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{ __html: ideaResponse.replace(/\n/g, '<br/>') }}
+                  />
+                  {ideaResponse === "" && <p className="text-gray-500">Submit the form to generate project ideas.</p>}
                 </div>
               </>
             )}
