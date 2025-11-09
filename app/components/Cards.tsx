@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
+// Removed local fallback JSX declaration — use the official React type definitions instead:
+// install @types/react and @types/react-dom so JSX.IntrinsicElements is provided by those packages.
 // 1. Updated ColorWay interface
 interface ColorWay {
   card: string;
@@ -28,31 +29,126 @@ interface CardData {
   tracks: string[];
 }
 
-const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) => {
-  const [cards, setCards] = useState<CardData[]>(initialCards);
-  const router = useRouter();
+const cardData: CardData[] = [
+  {
 
-  // Update cards state when initialCards prop changes
-  useEffect(() => {
-    setCards(initialCards);
-  }, [initialCards]);
+    id: 1,
 
-  const removeCard = () => {
+    title: " WEBSITE",
+
+    summary:
+
+      "FFind out what makes GoonMAXXER unique.With this innovative website you will be able to explore various features and functionalities that set GoonMAXXER apart from the rest.",
+
+    tracks: ["Gemini", "Auth0", "VibeCODING", "SmellyMaxxing", "shitposting"],
+
+  },
+
+  {
+
+    id: 2,
+
+    title: "Intro to React",
+
+    summary:
+
+      "Learn the fundamentals of React, including components, state, and props.",
+
+    tracks: ["React", "JS", "Frontend"],
+
+  },
+
+  {
+
+    id: 3,
+
+    title: "State Management",
+
+    summary:
+
+      "Explore complex state solutions with Zustand, Redux, and Context API.",
+
+    tracks: ["React", "Zustand", "State"],
+
+  },
+
+  {
+
+    id: 4,
+
+    title: "Next.js 14",
+
+    summary: "Master the app router, server actions, and data fetching.",
+
+    tracks: ["Next.js", "React", "Fullstack"],
+
+  },
+
+  {
+
+    id: 5,
+
+    title: "UI/UX Principles",
+
+    summary:
+
+      "A complete guide to user-centric design, prototyping, and testing.",
+
+    tracks: ["Design", "UI", "UX"],
+
+  },
+
+  {
+
+    id: 6,
+
+    title: "Node.js Essentials",
+
+    summary:
+
+      "Build scalable, high-performance backend applications with Node.js.",
+
+    tracks: ["Node", "Backend", "JS"],
+
+  },
+
+  {
+
+    id: 7,
+
+    title: "TypeScript",
+
+    summary:
+
+      "Add static typing to your JavaScript projects for robust, large-scale apps.",
+
+    tracks: ["TypeScript", "JS", "DevOps"],
+
+  },
+
+  {
+
+    id: 8,
+
+    title: "Framer Motion",
+
+    summary: "Create production-ready animations for your React applications.",
+
+    tracks: ["React", "Animation", "Framer"],
+
+  },
+
+].reverse();
+
+const SwipeCards: React.FC = () => {
+  const [cards, setCards] = useState<CardData[]>(cardData);
+
+  const onSwipe = () => {
     setCards((prev) => prev.slice(0, prev.length - 1));
   };
 
-  const handleAccept = (cardData: CardData) => {
-    removeCard();
-    // Redirect to chatbot with card data
-    router.push(`/chatbot?title=${encodeURIComponent(cardData.title)}&summary=${encodeURIComponent(cardData.summary)}`);
-  };
-
-  const handleReject = () => {
-    removeCard();
-  };
-
   const handleReset = () => {
-    setCards([]); // Reset to initial cards
+    setCards(cardData);
   };
 
   return (
@@ -60,8 +156,8 @@ const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) =>
       className="grid h-screen w-full place-items-center bg-orange-100"
       //   -gradient-to-tr from-orange-200 to-orange-100
       style={{
-        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'
-          viewBox='0 0 32 32' width='32' height='32' fill='none'
+        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
+          viewBox='0 0 32 32' width='32' height='32' fill='none' 
           stroke-width='2' stroke='%23d4d4d4'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
       }}
     >
@@ -74,8 +170,7 @@ const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) =>
               cardData={card}
               colorWay={colorWay}
               isFront={index === cards.length - 1}
-              onAccept={handleAccept}
-              onReject={handleReject}
+              onSwipe={onSwipe}
             />
           );
         })
@@ -104,11 +199,10 @@ interface CardProps {
   cardData: CardData;
   colorWay: ColorWay;
   isFront: boolean;
-  onAccept: (cardData: CardData) => void;
-  onReject: () => void;
+  onSwipe: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onReject }) => {
+const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe }) => {
   const { title, summary, tracks } = cardData;
 
   const x = useMotionValue(0);
@@ -118,30 +212,20 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
     [-250, -100, 0, 100, 250],
     [0, 1, 1, 1, 0],
   );
-  const controls = useAnimation();
 
   const acceptOpacity = useTransform(x, [50, 150], [0, 1]);
   const rejectOpacity = useTransform(x, [-150, -50], [1, 0]);
   const badgeRotate = useTransform(x, [-150, 150], [-15, 15]);
 
-  const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
-    if (info.offset.x > 100) {
-      // Card accepted
-      await controls.start({ x: 1000, opacity: 0, transition: { duration: 0.1 } }); // Animate off-screen quickly
-      onAccept(cardData); // Then call onAccept which removes the card and redirects
-    } else if (info.offset.x < -100) {
-      // Card rejected
-      await controls.start({ x: -1000, opacity: 0, transition: { duration: 0.1 } }); // Animate off-screen quickly
-      onReject(); // Then call onReject which removes the card
-    } else {
-      // Card not swiped far enough, snap back to center
-      controls.start({ x: 0, rotate: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } });
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
+    if (Math.abs(info.offset.x) > 100) {
+      onSwipe();
     }
   };
 
   return (
     <motion.div
-      className="absolute flex h-[56rem] w-[42rem] flex-col justify-between overflow-hidden rounded-2xl p-6 shadow-2xl hover:cursor-grab active:cursor-grabbing"
+      className="absolute flex h-[48rem] w-[36rem] flex-col justify-between overflow-hidden rounded-2xl p-6 shadow-2xl hover:cursor-grab active:cursor-grabbing"
       style={{
         x,
         rotate,
@@ -151,7 +235,10 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
         zIndex: isFront ? 2 : 1,
         pointerEvents: isFront ? "auto" : "none",
       }}
-      animate={controls}
+      animate={{
+        scale: isFront ? 1 : 0.95,
+        y: isFront ? 0 : -40,
+      }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       drag={isFront ? "x" : false}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -175,20 +262,24 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
       <div className="relative z-0">
         {/* 3. Applied the specific titleColor here */}
         <h2
-          className="mb-4 text-center text-3xl font-bold"
+          className="mb-4 text-center text-7xl font-bold"
           style={{ color: colorWay.titleColor }}
         >
           {title}
         </h2>
         {/* This summary <p> will inherit colorWay.text from the parent */}
-        <p className="text-center text-xl font-light">{summary}</p>
+        <p className="text-center text-3xl font-light">{summary}</p>
       </div>
 
       <div className="relative z-0 flex flex-wrap items-center justify-center gap-2">
-        {tracks.slice(0, 2).map((track, index) => (
+        {/* This <h3> will also inherit colorWay.text */}
+        <h3 className="mb-4 w-full text-center text-4xl font-semibold">
+          Tracks
+        </h3>
+        {tracks.map((track) => (
           <span
             key={track}
-            className="flex items-center justify-center rounded-full px-8 py-3 text-sm font-medium"
+            className="flex items-center justify-center rounded-full px-8 py-3 text-2xl font-medium"
             style={{
               // This logic now correctly contrasts with the main text color
               backgroundColor:
@@ -198,7 +289,6 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
             }}
           >
             {track}
-            {index === 0 && tracks.length > 1 && ", "}
           </span>
         ))}
       </div>

@@ -39,10 +39,10 @@ body {
   --color-foreground: var(--foreground);
 
   /* 3. Assign fonts to Tailwind's theme */
-  
+
   /* --font-sans is for regular text (Concert One) */
   --font-sans: var(--font-concert-one);
-  
+
   /* We add a new font family for headers (Pixelify Sans) */
   /* This also creates a 'font-header' utility class */
   --font-header: var(--font-pixelify);
@@ -60,12 +60,17 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  
+
   /* 4. Body uses --font-sans (Concert One) by default */
   font-family: var(--font-sans);
 }
 
 /* 5. (Optional but helpful) Apply header font to h-tags by default */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-header);
 }
