@@ -38,8 +38,7 @@ export default function Dashboard() {
     // Helper function to handle navigation for the "Create" button
     const handleCreateClick = () => {
         // Use standard window navigation instead of Next.js router
-        // Also corrected typo from "dashbaord" to "dashboard"
-        window.location.href = "/dashboard/create";
+        window.location.href = "/formfile";
     };
 
     // 4. Function to toggle the sort order
@@ -54,21 +53,20 @@ export default function Dashboard() {
         >
             <aside
                 className={`${sideBarOpen ? "w-64" : "w-16"
-                    } border-r transition-all duration-300 flex flex-col`}
-                style={{ backgroundColor: '#99A48A', borderColor: '#8A947E' }} // Sidebar background and border
+                    }  transition-all duration-300 flex flex-col`}
+                style={{ backgroundColor: '#99A48A'}} // Sidebar background and border
             >
                 <div
                     className="flex items-center justify-between p-4 "
-                    style={{ borderColor: '#8A947E' }} // Sidebar border
                 >
                     {sideBarOpen && (
-                        <span className="text-lg font-semibold text-white">
+                        <span className="text-5xl font-semibold text-white">
                             More
                         </span>
                     )}
                     <button
                         onClick={() => setSidebarOpen(!sideBarOpen)}
-                        className="text-white hover:text-gray-200 transition-colors"
+                        className="text-white hover:text-gray-200 transition-colors text-3xl"
                         title="Toggle Sidebar"
                     >
                         ☰
@@ -76,7 +74,7 @@ export default function Dashboard() {
                 </div>
 
                 <nav
-                    className={`flex flex-col p-4 gap-3 text-zinc-700 dark:text-zinc-300 transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
+                    className={`flex flex-col text-3xl p-4 gap-4 text-white transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
                         }`}
                 >
                     <a
@@ -86,7 +84,7 @@ export default function Dashboard() {
                         Home
                     </a>
                     <p
-                        className="hover:text-gray-200 transition-colors"
+                        className="hover:text-gray-200 transition-colors cursor-pointer"
                     >
                         Settings
                     </p>
@@ -101,8 +99,8 @@ export default function Dashboard() {
 
             <div className="flex-1 flex flex-col min-w-0">
                 <header
-                    className="sticky top-0 z-10 backdrop-blur-sm border-b"
-                    style={{ backgroundColor: 'rgba(153, 164, 138, 0.9)', borderColor: '#8A947E' }} // Top bar background (semi-transparent) and border
+                    className="sticky top-0 z-10 backdrop-blur-sm "
+                    style={{ backgroundColor: '#DEE5D4'}} // Top bar background (semi-transparent) and border
                 >
                     <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
                         <div className="flex-1">
@@ -111,7 +109,7 @@ export default function Dashboard() {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="Search projects, boards or tasks..."
-                                className="w-full max-w-md px-4 py-2 rounded-md border text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full max-w-md px-5 py-3 text-lg rounded-md border text-black focus:outline-none focus:ring-2 focus:ring-[#EA627F]"
                                 style={{ backgroundColor: '#F7F7F7', borderColor: '#D1D1D1' }} // Search bar "off-white"
                             />
                         </div>
@@ -120,7 +118,7 @@ export default function Dashboard() {
                             <button
                                 type="button"
                                 onClick={handleCreateClick} // Use the new handler
-                                className="text-white px-4 py-2 rounded-md shadow-sm hover:opacity-90"
+                                className="text-white px-6 py-3 text-xl rounded-md shadow-sm hover:opacity-90 hover:scale-[.98] transition-all duration-150"
                                 style={{ backgroundColor: '#EA627F' }} // Create button
                             >
                                 Create
@@ -130,18 +128,17 @@ export default function Dashboard() {
                 </header>
 
                 <main className="max-w-7xl w-full mx-auto px-6 py-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-semibold text-black">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-4xl font-semibold text-black">
                             Project Names
                         </h1>
                         <button
                             type="button"
                             onClick={toggleSortOrder}
-                            className="px-3 py-1 text-sm font-medium border rounded-md"
+                            className="px-4 py-2 text-lg font-medium  rounded-md"
                             style={{
                                 color: '#333',
                                 backgroundColor: '#F7F7F7', // "off-white"
-                                borderColor: '#D1D1D1'
                             }}
                         >
                             Sort by: {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
@@ -149,21 +146,21 @@ export default function Dashboard() {
                     </div>
 
                     <section>
-                        <ul className="space-y-3">
+                        <ul className="space-y-4">
                             {filtered.map((project, index) => (
                                 <li
                                     key={index}
-                                    className="flex justify-between p-4 border rounded-md"
-                                    style={{ backgroundColor: '#B8C0AD', color: '#222', borderColor: '#A9B29E' }} // Project boxes
+                                    className="flex justify-between items-center p-6 rounded-md transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg"
+                                    style={{ backgroundColor: '#B8C0AD', color: '#222'}} // Project boxes
                                 >
-                                    <span>{project.name}</span>
-                                    <span className="text-gray-700 text-sm">
+                                    <span className="text-xl">{project.name}</span>
+                                    <span className="text-gray-700 text-lg">
                                         Created: {project.createdAt}
                                     </span>
                                 </li>
                             ))}
                             {filtered.length === 0 && (
-                                <li className="text-gray-600">No results found</li>
+                                <li className="text-lg text-gray-600">No results found</li>
                             )}
                         </ul>
                     </section>
