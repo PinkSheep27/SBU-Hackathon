@@ -4,15 +4,16 @@ import { ChatHistory } from "@/app/exportType/types";
 import { User, Bot } from "lucide-react"
 
 interface MessageWindowProps {
-    history: ChatHistory
+    history: ChatHistory;
+    isLoading: boolean;
 }
 
-export default function MessageWindow({ history }: MessageWindowProps) {
+export default function MessageWindow({ history, isLoading }: MessageWindowProps) {
     const messageEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [history]);
+    }, [history, isLoading]);
 
     return (
         <div className="flex-1 p-3 overflow-y-auto">
@@ -51,6 +52,21 @@ export default function MessageWindow({ history }: MessageWindowProps) {
                         </div>
                     );
                 })}
+                {isLoading && (
+                    <div className="flex justify-start mb-4">
+                        <div className="mr-2">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
+                                <Bot size={15} className="text-gray-700" />
+                            </div>
+                        </div>
+                        <div className="px-4 py-2 shadow-sm rounded-lg bg-white text-gray-800 rounded-bl-none max-w-xs sm:max-w-md">
+                            <div className="whitespace-pre-wrap break-words">
+                                {/* Simple loading dots animation */}
+                                <span className="animate-pulse">...</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Invisible element to help scroll to bottom */}
                 <div ref={messageEndRef} />

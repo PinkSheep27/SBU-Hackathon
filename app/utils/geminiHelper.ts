@@ -16,7 +16,7 @@ export async function chatToGemini(
 ): Promise<string> {
     const model = genAI.getGenerativeModel({
         model: settings.model || "gemini-2.5-flash",
-        systemInstruction: settings.sysTemInstructions || "you are going to create a project idea, explain it in summery first before going to detail",
+        systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summery first before going to detail",
     });
 
     const generationConfig: GenerateConfig = {
@@ -36,7 +36,7 @@ export async function chatToGemini(
         return result.response.text();
     }
     catch (error) {
-        console.error(error)
-        throw error
+        console.error("Gemini API Error:", error);
+        throw error;
     }
 }

@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CardData } from "@/app/exportType/types";
 
 // 1. Updated ColorWay interface
 interface ColorWay {
   card: string;
   text: string;
-  titleColor: string; // Added title color
+  titleColor: string;
 }
 
 // 2. Updated COLOR_WAYS array
@@ -21,21 +22,100 @@ const COLOR_WAYS: ColorWay[] = [
   { card: "#B8C0AD", text: "#173C46", titleColor: "#EA627F" },
 ];
 
-interface CardData {
-  id: number;
-  title: string;
-  summary: string;
-  tracks: string[];
+const parseAiResponse = (markdownString: string): CardData[] => {
+  const ideas: CardData[] = [];
+  const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
+
+  ideaBlocks.forEach((block, index) => {
+    const titleMatch = block.match(/^(.*?)\n/);
+    const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
+
+    // Simple track parsing: find all bolded text that isn't a main header
+    const tracksMatch = block.matchAll(/\*\*(?!Concept|Relevance|Core|Team|Bonus)(.*?):\*\*/g);
+    const tracks = [...tracksMatch].map(match => match[1].trim());
+
+    ideas.push({
+      id: index + 1,
+      title: titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`,
+      summary: conceptMatch ? conceptMatch[1].trim() : "No concept provided.",
+      tracks: tracks.length > 0 ? tracks : ["General"], // Fallback
+    });
+  });
+  return ideas;
+};
+
+export default function CardsPage() {
+  const [cards, setCards] = useState<CardData[]>([]);
+  const [initialCards, setInitialCards] = useState<CardData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const projectId = searchParams.get('projectId');
+  const projectTitle = searchParams.get('projectTitle');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // **** MODIFIED THIS SECTION ****
+    // Get the AI response from the form page
+    const aiResponse = localStorage.getItem('temp_aiResponse');
+    if (aiResponse) {
+      localStorage.removeItem('temp_aiResponse'); // Clean up
+      const parsedCards = parseAiResponse(aiResponse);
+      setCards(parsedCards.reverse());
+      setInitialCards(parsedCards.reverse()); // Save for reset
+    } else {
+      // Handle case where user lands here directly
+      // Maybe redirect or show an error
+      console.warn("No AI response found. Using hardcoded cards as fallback.");
+      const hardcodedCards: CardData[] = [
+        { id: 1, title: "AI Project Idea 1", summary: "A cool project...", tracks: ["AI", "Web"] },
+        { id: 2, title: "AI Project Idea 2", summary: "Another cool project...", tracks: ["Mobile", "Game"] },
+      ];
+      setCards(hardcodedCards.reverse());
+      setInitialCards(hardcodedCards.reverse());
+    }
+    setIsLoading(false);
+  }, []); // Runs once on load
+  if (isLoading) {
+    return <div className="grid h-screen w-full place-items-center bg-orange-100"><p>Loading cards...</p></div>
+  }
+
+  if (!projectId || !projectTitle) {
+    return (
+      <div className="grid h-screen w-full place-items-center bg-orange-100">
+        <p>Missing project information. Please <a href="/formfile">start a new project</a>.</p>
+      </div>
+    )
+  }
+
+  return (
+    <SwipeCards
+      initialCards={initialCards}
+      currentCards={cards}
+      setCards={setCards}
+      projectId={projectId}
+      projectTitle={projectTitle}
+    />
+  )
 }
 
-const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) => {
-  const [cards, setCards] = useState<CardData[]>(initialCards);
-  const router = useRouter();
+interface SwipeCardsProps {
+  initialCards: CardData[];
+  currentCards: CardData[];
+  setCards: React.Dispatch<React.SetStateAction<CardData[]>>;
+  projectId: string;
+  projectTitle: string;
+}
 
-  // Update cards state when initialCards prop changes
-  useEffect(() => {
-    setCards(initialCards);
-  }, [initialCards]);
+const SwipeCards: React.FC<SwipeCardsProps> = ({
+  initialCards,
+  currentCards,
+  setCards,
+  projectId,
+  projectTitle
+}) => {
+  const router = useRouter();
 
   const removeCard = () => {
     setCards((prev) => prev.slice(0, prev.length - 1));
@@ -44,43 +124,43 @@ const SwipeCards: React.FC<{ initialCards: CardData[] }> = ({ initialCards }) =>
   const handleAccept = (cardData: CardData) => {
     removeCard();
     // Redirect to chatbot with card data
-    router.push(`/chatbot?title=${encodeURIComponent(cardData.title)}&summary=${encodeURIComponent(cardData.summary)}`);
+    router.push(`/chatbot?projectId=${encodeURIComponent(projectId)}&projectTitle=${encodeURIComponent(projectTitle)}&cardTitle=${encodeURIComponent(cardData.title)}&cardSummary=${encodeURIComponent(cardData.summary)}`);
   };
 
   const handleReject = () => {
     removeCard();
   };
 
+  // **** FIXED THIS FUNCTION ****
   const handleReset = () => {
-    setCards([]); // Reset to initial cards
+    // This now resets the deck to the initial set of cards
+    setCards(initialCards);
   };
 
   return (
     <div
       className="grid h-screen w-full place-items-center bg-orange-100"
-      //   -gradient-to-tr from-orange-200 to-orange-100
       style={{
         backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'
           viewBox='0 0 32 32' width='32' height='32' fill='none'
           stroke-width='2' stroke='%23d4d4d4'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
       }}
     >
-      {cards.length > 0 ? (
-        cards.map((card, index) => {
+      {currentCards.length > 0 ? (
+        currentCards.map((card, index) => {
           const colorWay = COLOR_WAYS[card.id % COLOR_WAYS.length];
           return (
             <Card
               key={card.id}
               cardData={card}
               colorWay={colorWay}
-              isFront={index === cards.length - 1}
+              isFront={index === currentCards.length - 1}
               onAccept={handleAccept}
               onReject={handleReject}
             />
           );
         })
       ) : (
-        // ... (empty state)
         <div className="text-center">
           <h2 className="text-2xl font-bold text-neutral-700">
             No more cards!
@@ -126,15 +206,12 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
 
   const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
     if (info.offset.x > 100) {
-      // Card accepted
-      await controls.start({ x: 1000, opacity: 0, transition: { duration: 0.1 } }); // Animate off-screen quickly
-      onAccept(cardData); // Then call onAccept which removes the card and redirects
+      await controls.start({ x: 1000, opacity: 0, transition: { duration: 0.1 } });
+      onAccept(cardData);
     } else if (info.offset.x < -100) {
-      // Card rejected
-      await controls.start({ x: -1000, opacity: 0, transition: { duration: 0.1 } }); // Animate off-screen quickly
-      onReject(); // Then call onReject which removes the card
+      await controls.start({ x: -1000, opacity: 0, transition: { duration: 0.1 } });
+      onReject();
     } else {
-      // Card not swiped far enough, snap back to center
       controls.start({ x: 0, rotate: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } });
     }
   };
@@ -147,7 +224,7 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
         rotate,
         opacity,
         backgroundColor: colorWay.card,
-        color: colorWay.text, // This is the default text color
+        color: colorWay.text,
         zIndex: isFront ? 2 : 1,
         pointerEvents: isFront ? "auto" : "none",
       }}
@@ -206,5 +283,3 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onAccept, onRe
   );
 
 };
-
-export default SwipeCards;
