@@ -23,7 +23,8 @@ export default async function handler(
   }
 
   // Destructure the data sent from the frontend
-  let { prompt, settings } = req.body;
+  let prompt = req.body.prompt;
+  const settings = req.body.settings;
 
   // Basic validation
   if (!prompt || typeof prompt !== 'string') {

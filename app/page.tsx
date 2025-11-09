@@ -17,14 +17,13 @@ export default function Home() {
           height={20}
           // "priority" is not a valid <img> attribute, so it's removed
         />
-        
-        <div className="flex items-center gap-6">
-          <a href="/dashboard" className="hover:text-blue-600 transition-colors">
+        <div className="flex items-center gap-4">
+          <Link href="/Dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             Dashboard
-          </a>
-          <a href="/cards" className="hover:text-blue-600 transition-colors">
+          </Link>
+          <Link href="/cards" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             Cards
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -45,14 +44,13 @@ export default function Home() {
               Got a hackathon coming up? Tell us your track, your team’s skills, what you’re passionate about, and more — and we’ll provide you with the perfect project idea!{" "}
             </p>
 
-            {/* Replaced <button><Link...></button> with a single <a> tag styled as a button */}
-            <a
-              href="/dashboard"
+            <Link
+              href="/Dashboard"
               style={{ backgroundColor: "#173C46", color: "white" }}
               className="inline-block px-5 py-2.5 text-lg rounded-md shadow-md font-semibold hover:opacity-90 transition-opacity"
             >
-              Get Started
-            </a>
+              <Link href="/dashboard">Get Started</Link>
+            </button>
           </div>
 
           <div className="flex-1 flex justify-center">

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 // Removed local fallback JSX declaration — use the official React type definitions instead:
 // install @types/react and @types/react-dom so JSX.IntrinsicElements is provided by those packages.
@@ -29,126 +30,49 @@ interface CardData {
   tracks: string[];
 }
 
-const cardData: CardData[] = [
-  {
 
-    id: 1,
 
-    title: " WEBSITE",
+interface SwipeCardsProps {
+  initialCards: CardData[];
+}
 
-    summary:
-
-      "FFind out what makes GoonMAXXER unique.With this innovative website you will be able to explore various features and functionalities that set GoonMAXXER apart from the rest.",
-
-    tracks: ["Gemini", "Auth0", "VibeCODING", "SmellyMaxxing", "shitposting"],
-
-  },
-
-  {
-
-    id: 2,
-
-    title: "Intro to React",
-
-    summary:
-
-      "Learn the fundamentals of React, including components, state, and props.",
-
-    tracks: ["React", "JS", "Frontend"],
-
-  },
-
-  {
-
-    id: 3,
-
-    title: "State Management",
-
-    summary:
-
-      "Explore complex state solutions with Zustand, Redux, and Context API.",
-
-    tracks: ["React", "Zustand", "State"],
-
-  },
-
-  {
-
-    id: 4,
-
-    title: "Next.js 14",
-
-    summary: "Master the app router, server actions, and data fetching.",
-
-    tracks: ["Next.js", "React", "Fullstack"],
-
-  },
-
-  {
-
-    id: 5,
-
-    title: "UI/UX Principles",
-
-    summary:
-
-      "A complete guide to user-centric design, prototyping, and testing.",
-
-    tracks: ["Design", "UI", "UX"],
-
-  },
-
-  {
-
-    id: 6,
-
-    title: "Node.js Essentials",
-
-    summary:
-
-      "Build scalable, high-performance backend applications with Node.js.",
-
-    tracks: ["Node", "Backend", "JS"],
-
-  },
-
-  {
-
-    id: 7,
-
-    title: "TypeScript",
-
-    summary:
-
-      "Add static typing to your JavaScript projects for robust, large-scale apps.",
-
-    tracks: ["TypeScript", "JS", "DevOps"],
-
-  },
-
-  {
-
-    id: 8,
-
-    title: "Framer Motion",
-
-    summary: "Create production-ready animations for your React applications.",
-
-    tracks: ["React", "Animation", "Framer"],
-
-  },
-
-].reverse();
-
-const SwipeCards: React.FC = () => {
-  const [cards, setCards] = useState<CardData[]>(cardData);
+const SwipeCards: React.FC<SwipeCardsProps> = ({ initialCards }) => {
+  const [cards, setCards] = useState<CardData[]>(initialCards);
+  const router = useRouter();
 
   const onSwipe = () => {
     setCards((prev) => prev.slice(0, prev.length - 1));
   };
 
+  const handleRightSwipe = async (card: CardData) => {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userMessage: `Explain the project: ${card.title}. Summary: ${card.summary}. Tracks: ${card.tracks.join(", ")}`,
+          history: [], // Provide an empty array for history
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text(); // Read the response body
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+      }
+
+      // Assuming the chat API handles the message and we can then navigate
+      router.push(`/chatbot?title=${encodeURIComponent(card.title)}&summary=${encodeURIComponent(card.summary)}`);
+    } catch (error) {
+      console.error("Error sending project to chatbot:", error);
+      // Optionally, handle error state or show a message to the user
+    }
+    onSwipe(); // Remove the card after swiping right
+  };
+
   const handleReset = () => {
-    setCards(cardData);
+    setCards(initialCards);
   };
 
   return (
@@ -171,6 +95,7 @@ const SwipeCards: React.FC = () => {
               colorWay={colorWay}
               isFront={index === cards.length - 1}
               onSwipe={onSwipe}
+              onRightSwipe={handleRightSwipe}
             />
           );
         })
@@ -199,10 +124,11 @@ interface CardProps {
   cardData: CardData;
   colorWay: ColorWay;
   isFront: boolean;
-  onSwipe: () => void;
+  onSwipe: () => void; // For left swipe (reject)
+  onRightSwipe: (card: CardData) => void; // For right swipe (accept)
 }
 
-const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe }) => {
+const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe, onRightSwipe }) => {
   const { title, summary, tracks } = cardData;
 
   const x = useMotionValue(0);
@@ -218,14 +144,18 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe }) => 
   const badgeRotate = useTransform(x, [-150, 150], [-15, 15]);
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
-    if (Math.abs(info.offset.x) > 100) {
+    if (info.offset.x > 100) {
+      // Swiped right
+      onRightSwipe(cardData);
+    } else if (info.offset.x < -100) {
+      // Swiped left
       onSwipe();
     }
   };
 
   return (
     <motion.div
-      className="absolute flex h-[48rem] w-[36rem] flex-col justify-between overflow-hidden rounded-2xl p-6 shadow-2xl hover:cursor-grab active:cursor-grabbing"
+      className="absolute flex h-[40rem] w-[30rem] flex-col justify-between overflow-hidden rounded-2xl p-6 shadow-2xl hover:cursor-grab active:cursor-grabbing"
       style={{
         x,
         rotate,
@@ -243,43 +173,46 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe }) => 
       drag={isFront ? "x" : false}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       onDragEnd={handleDragEnd}
+      initial={{ x: 500, opacity: 0 }} // Start off-screen to the right and invisible
+      animate={{ x: 0, opacity: 1 }} // Animate to its natural position and fully visible
+      transition={{ type: "spring", stiffness: 100, damping: 20 }} // Smooth spring animation
     >
       {/* Accept/Reject Badges */}
       <motion.div
         className="absolute left-10 top-10 z-10 rounded-2xl border-8 border-green-500 px-10 py-4"
         style={{ opacity: acceptOpacity, rotate: badgeRotate }}
       >
-        <h3 className="text-5xl font-bold uppercase text-green-500">Accept</h3>
+        <h3 className="text-2xl font-bold uppercase text-green-500">Accept</h3>
       </motion.div>
       <motion.div
         className="absolute right-10 top-10 z-10 rounded-2xl border-8 border-red-500 px-10 py-4"
         style={{ opacity: rejectOpacity, rotate: badgeRotate }}
       >
-        <h3 className="text-5xl font-bold uppercase text-red-500">Reject</h3>
+        <h3 className="text-2xl font-bold uppercase text-red-500">Reject</h3>
       </motion.div>
 
       {/* Card Content */}
       <div className="relative z-0">
         {/* 3. Applied the specific titleColor here */}
         <h2
-          className="mb-4 text-center text-7xl font-bold"
+          className="mb-4 text-center text-2xl font-bold"
           style={{ color: colorWay.titleColor }}
         >
           {title}
         </h2>
         {/* This summary <p> will inherit colorWay.text from the parent */}
-        <p className="text-center text-3xl font-light">{summary}</p>
+        <p className="text-center text-sm font-light">{summary}</p>
       </div>
 
       <div className="relative z-0 flex flex-wrap items-center justify-center gap-2">
         {/* This <h3> will also inherit colorWay.text */}
-        <h3 className="mb-4 w-full text-center text-4xl font-semibold">
+        <h3 className="mb-4 w-full text-center text-md font-semibold">
           Tracks
         </h3>
         {tracks.map((track) => (
           <span
             key={track}
-            className="flex items-center justify-center rounded-full px-8 py-3 text-2xl font-medium"
+            className="flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium"
             style={{
               // This logic now correctly contrasts with the main text color
               backgroundColor:
