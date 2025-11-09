@@ -1,35 +1,31 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ChatInput from "../utils/component/ui/ChatInput";
 import MessageWindow from "../utils/component/ui/MessageWindow";
 import { ChatHistory, ChatSetting, Message, MessageRole } from "@/app/exportType/types";
 
 export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading chat...</div>}>
+      <ChatbotContent />
+    </Suspense>
+  );
+}
+
+function ChatbotContent() {
   const [history, setHistory] = useState<ChatHistory>([])
   const [loading, setLoading] = useState(false);
-  const historyRef = useRef<ChatHistory>([]); // Create a ref for history
   const [settings] = useState<ChatSetting>({
-<<<<<<< HEAD
-    temperature:1,
-    model:"gemini-2.5-pro",
-    systemInstruction:"you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
-    
-=======
     temperature: 1,
     model: "gemini-2.5-pro",
-    sysTemInstructions: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
+    systemInstruction: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
 
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
   });
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMessageSent = useRef(false);
-
-  useEffect(() => {
-    historyRef.current = history; // Keep the ref updated with the latest history
-  }, [history]);
 
   const handleSend = useCallback(async (message: string) => {
     const newUserMessage: Message = {
@@ -37,54 +33,42 @@ export default function Home() {
       parts: [{ text: message }],
     };
 
-    setHistory(prevHistory => {
-      const currentHistory = [...prevHistory, newUserMessage];
+    const currentHistory = [...history, newUserMessage];
+    setHistory(currentHistory);
+    setLoading(true);
 
-      const sendApiRequest = async () => {
-<<<<<<< HEAD
-        setLoading(true);
-        try{
-=======
-        try {
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userMessage: message,
-              history: historyRef.current, // Use the ref for history
-              settings: settings,
-            }),
-          });
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userMessage: message,
+          history: currentHistory,
+          settings: settings,
+        }),
+      });
 
-          const data = await response.json();
+      const data = await response.json();
 
-          if (data.error) {
-            console.error("AI Error:", data.error);
-            setLoading(false);
-            return;
-          }
-
-          const aiMessage: Message = {
-            role: "model" as MessageRole,
-            parts: [{ text: data.response }],
-          };
-
-          setHistory(prevHistory => [...prevHistory, aiMessage]);
-
-        }
-        catch (error) {
-          console.error("Request Failed:", error);
-        }
+      if (data.error) {
+        console.error("AI Error:", data.error);
         setLoading(false);
-      };
-      sendApiRequest();
+        return;
+      }
 
-      return currentHistory;
-    });
-  }, [settings]); // Now handleSend only depends on settings
+      const aiMessage: Message = {
+        role: "model" as MessageRole,
+        parts: [{ text: data.response }],
+      };
+
+      setHistory((prevHistory) => [...prevHistory, aiMessage]);
+    } catch (error) {
+      console.error("Request Failed:", error);
+    }
+    setLoading(false);
+  }, [history, settings]); // Dependencies for useCallback
 
   useEffect(() => {
     if (!initialMessageSent.current) {
@@ -93,61 +77,16 @@ export default function Home() {
 
       if (title && summary) {
         const message = `Explain the project titled '${title}' with the summary '${summary}' in detail, and suggest suitable roles for a team working on it.`;
-
-        const newUserMessage: Message = {
-          role: "user",
-          parts: [{ text: message }],
-        };
-
-        setTimeout(() => {
-          setHistory((prevHistory) => [...prevHistory, newUserMessage]); // Add user message to history
-        }, 0);
-
-        const sendInitialApiRequest = async () => {
-          setLoading(true);
-          try {
-            const response = await fetch("/api/chat", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                userMessage: message,
-                history: [...historyRef.current, newUserMessage], // Use ref for history
-                settings: settings,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (data.error) {
-              console.error("AI Error:", data.error);
-              setLoading(false);
-              return;
-            }
-
-            const aiMessage: Message = {
-              role: "model" as MessageRole,
-              parts: [{ text: data.response }],
-            };
-
-            setHistory((prevHistory) => [...prevHistory, aiMessage]);
-          } catch (error) {
-            console.error("Request Failed:", error);
-          }
-          setLoading(false);
-        };
-
-        sendInitialApiRequest();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        handleSend(message);
         initialMessageSent.current = true;
       }
     }
-  }, [searchParams, settings]); // Dependencies for this useEffect
+  }, [searchParams, settings, handleSend]); // Dependencies for this useEffect
 
 
   return (
     <div className="flex flex-col py-32">
-<<<<<<< HEAD
       <button
         onClick={() => router.push('/Dashboard')}
         className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -156,10 +95,6 @@ export default function Home() {
       </button>
       <MessageWindow history={history} isLoading={loading} />
       <ChatInput onSend={handleSend} onOpenSettings={() => {}} />
-=======
-      <MessageWindow history={history} />
-      <ChatInput onSend={handleSend} onOpenSettings={() => { }} />
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
     </div>
   );
 }

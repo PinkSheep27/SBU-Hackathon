@@ -3,22 +3,13 @@ import { useRef, useEffect } from "react";
 import { ChatHistory } from "@/app/exportType/types";
 import { User, Bot } from "lucide-react"
 
-<<<<<<< HEAD
 interface MessageWindowProps{
     history :ChatHistory;
     isLoading: boolean;
 }
 
 export default function MessageWindow({history, isLoading}:MessageWindowProps){
-    const messageEndRef = useRef<HTMLDivVElement>(null);
-=======
-interface MessageWindowProps {
-    history: ChatHistory
-}
-
-export default function MessageWindow({ history }: MessageWindowProps) {
     const messageEndRef = useRef<HTMLDivElement>(null);
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +50,6 @@ export default function MessageWindow({ history }: MessageWindowProps) {
                                 </div>
                             )}
                         </div>
-<<<<<<< HEAD
                         );
                     })}
         
@@ -79,14 +69,7 @@ export default function MessageWindow({ history }: MessageWindowProps) {
                 )}
         {/* Invisible element to help scroll to bottom */}
         <div ref={messageEndRef} />
-=======
-                    );
-                })}
-
-                {/* Invisible element to help scroll to bottom */}
-                <div ref={messageEndRef} />
-            </div>
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
         </div>
+    </div>
     );
 }

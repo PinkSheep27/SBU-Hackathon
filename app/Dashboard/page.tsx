@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-// import { useRouter } from "next/navigation"; // Removed Next.js import
-// import Link from 'next/link'; // Removed Next.js import
+import Link from 'next/link';
 
 export default function Dashboard() {
     // const router = useRouter(); // Removed Next.js hook
@@ -79,23 +78,23 @@ export default function Dashboard() {
                     className={`flex flex-col p-4 gap-3 text-zinc-700 dark:text-zinc-300 transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
                         }`}
                 >
-                    <a
+                    <Link
                         href="/"
                         className="hover:text-gray-200 transition-colors"
                     >
                         Home
-                    </a>
+                    </Link>
                     <p
                         className="hover:text-gray-200 transition-colors"
                     >
                         Settings
                     </p>
-                    <a
+                    <Link
                         href="/auth/logout"
                         className="hover:text-gray-200 transition-colors"
                     >
                         Logout
-                    </a>
+                    </Link>
                 </nav>
             </aside>
 

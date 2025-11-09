@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import FormPage from './FormPage';
+import { CardData } from "../exportType/types";
+import SwipeCards from "../components/Cards";
 import { ChatSetting } from "../exportType/types";
 import { FormData, PROFICIENCY_LEVELS } from './formTypes';
 
@@ -40,87 +42,51 @@ const getInitialState = () => {
   };
 };
 
-<<<<<<< HEAD
+export default function Home() {
+
   const [ideaResponse, setIdeaResponse] = useState<string>("");
   const [generatedCards, setGeneratedCards] = useState<CardData[]>([]); // New state for parsed cards
+  const [initialState] = useState(getInitialState);
+  const [showForm, setShowForm] = useState(initialState.showForm);
+  const initialIdeaGenerationAttempted = useRef(false);
 
   const [settings] = useState<ChatSetting>({
     temperature: 1,
     model: "gemini-2.5-flash-lite",
     systemInstruction: `You are an elite hackathon idea generator. Your task is to choose at lease two track and generate five different creative, feasible, and relevant project idea.
-=======
-// FIX 1 (Memoization): Moved settings OUTSIDE the component.
-// This makes it a true constant.
-const AI_SETTINGS: ChatSetting = {
-  temperature: 1,
-  model: "gemini-2.5-pro",
-  sysTemInstructions: `You are an elite hackathon idea generator. Your task is to generate five different creative, feasible, and relevant project idea. 
->>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
 The output MUST be in Markdown format and strictly follow this structure:
 ### Project Idea Title
-<<<<<<< HEAD
 **Track** [print out the track you used]
 **Concept:** [A concise, single paragraph description of the product and its primary function.]`,
   });
 
-  const parseAiResponse = (markdownString: string): CardData[] => {
-    console.log("Raw AI Response:", markdownString);
-    const ideas: CardData[] = [];
-    const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
-
-    ideaBlocks.forEach((block, index) => {
-      // Match title: anything from the start of the block until the first newline or the start of "**Track**"
-      const titleMatch = block.match(/^(.*?)(?=\n\*\*Track\*\*|$)/s);
-      // Match track: "**Track**" followed by optional whitespace and then capture everything until the next "**Concept**" or end of block/line
-      const trackMatch = block.match(/\*\*Track\*\*\s*:\s*(.*?)(?=\n\*\*Concept\*\*|$)/s); // Added ':' and made whitespace more flexible
-      // Match concept: "**Concept:**" followed by optional whitespace and then capture everything until the end of the block
-      const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
-
-      const title = titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`;
-      const summary = conceptMatch ? conceptMatch[1].trim() : "No concept provided.";
-      const tracksRaw = trackMatch ? trackMatch[1].trim() : "";
-      console.log("tracksRaw:", tracksRaw); // Added console.log for debugging
-      const tracks = tracksRaw.split(',').map(track => track.trim()).filter(track => track !== '');
-
-      ideas.push({
-        id: index + 1,
-        title,
-        tracks,
-        summary,
-      });
-    });
-    console.log("Parsed Cards:", ideas);
-    return ideas;
-  };
-=======
-**Relevance to Theme:** [Explain briefly]
-**Core Technology:** [List 3-5 primary technologies]
-**Team Fit:** [How the team's skills apply]
-**Concept:** [A concise, single paragraph description of the product and its primary function.]
-**Bonus Feature:** [A single, ambitious feature to impress judges.]`,
-};
->>>>>>> 44b5a4dc49ea757e9790ba8309edc6b37d764105
-
-// ------------------------------------------------
-
-export default function Home() {
-
-  const [initialState] = useState(getInitialState);
-  const [showForm, setShowForm] = useState(initialState.showForm);
-  const [formData, setFormData] = useState<FormData>(initialState.data);
-  const [ideaResponse, setIdeaResponse] = useState<string>("");
-
-  // The 'settings' state [useState] is now removed from here.
-
-  const handleFormSubmitFromFormPage = (submittedData: FormData) => {
-    setFormData(submittedData);
-    setShowForm(false);
-    generateIdeas(submittedData);
-  };
-
-  // Wrapped generateIdeas in useCallback
   const generateIdeas = useCallback(async (dataToProcess: FormData) => {
-    // 1. Data Cleaning
+    const parseAiResponse = (markdownString: string): CardData[] => {
+      console.log("Raw AI Response:", markdownString);
+      const ideas: CardData[] = [];
+      const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
+
+      ideaBlocks.forEach((block, index) => {
+        const titleMatch = block.match(/^(.*?)(?=\n\*\*Track\*\*|$)/s);
+        const trackMatch = block.match(/\*\*Track\*\*\s*:\s*(.*?)(?=\n\*\*Concept\*\*|$)/s);
+        const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
+
+        const title = titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`;
+        const summary = conceptMatch ? conceptMatch[1].trim() : "No concept provided.";
+        const tracksRaw = trackMatch ? trackMatch[1].trim() : "";
+        const tracks = tracksRaw.split(',').map(track => track.trim()).filter(track => track !== '');
+
+        ideas.push({
+          id: index + 1,
+          title,
+          tracks,
+          summary,
+        });
+      });
+      console.log("Parsed Cards:", ideas);
+      return ideas;
+    };
+
     const submissionData: FormData = {
       ...dataToProcess,
       tracksStack: dataToProcess.tracksStack.filter(tracks => tracks.trim() !== ''),
@@ -132,7 +98,6 @@ export default function Home() {
         .filter(student => student.studentName.trim() !== '' || student.skills.length > 0),
     };
 
-    // 2. Prompt Construction
     const prompt = `
     Hackathon: ${submissionData.Hackathon}
     Main Theme: ${submissionData.mainTheme}
@@ -143,11 +108,9 @@ export default function Home() {
     
     Using the SYSTEM INSTRUCTIONS, generate 5 project ideas based on the data above.`;
 
-    // 3. API Call
     try {
       setIdeaResponse("Generating ideas... Please wait.");
-<<<<<<< HEAD
-      setGeneratedCards([]); // Clear previous cards
+      setGeneratedCards([]);
       const response = await fetch("/api/generate-idea", {
         method: "POST",
         headers: {
@@ -161,24 +124,10 @@ export default function Home() {
 
       const data = await response.json();
 
-=======
-
-      const response = await fetch("/api/generate-idea", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: prompt,
-          settings: AI_SETTINGS, // Use the constant
-        }),
-      });
-
-      const data = await response.json();
->>>>>>> 44b5a4dc49ea757e9790ba8309edc6b37d764105
       if (data.error || !response.ok) {
         console.error("AI Error:", data.error);
         setIdeaResponse(`Error: Failed to generate idea. ${data.error || response.statusText}`);
         return;
-<<<<<<< HEAD
       }
 
       setIdeaResponse(data.response);
@@ -195,41 +144,20 @@ export default function Home() {
       }
       setIdeaResponse(`A network error occurred. Please try again. Details: ${errorMessage}`);
     }
-  }, [setIdeaResponse, setGeneratedCards, settings, parseAiResponse]);
+  }, [settings]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedFormData = localStorage.getItem('formData');
-      if (storedFormData) {
-        const parsedData: FormData = JSON.parse(storedFormData);
-        setTimeout(() => setShowForm(false), 0);
-        generateIdeas(parsedData);
-        localStorage.removeItem('formData');
-=======
->>>>>>> 44b5a4dc49ea757e9790ba8309edc6b37d764105
-      }
-      setIdeaResponse(data.response);
-
-      // FIX 2 (Unexpected any): Changed 'any' to 'unknown' and added a type check.
-    } catch (error: unknown) {
-      console.error("Request Failed:", error);
-      let errorMessage = "A network error occurred. Please try again.";
-      if (error instanceof Error) {
-        errorMessage += ` Details: ${error.message}`;
-      }
-      setIdeaResponse(errorMessage);
-    }
-    // FIX 3 (Linter): Disable the faulty memoization rule.
-    // The empty array is correct because setIdeaResponse is a stable state setter.
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  }, []);
-
-  // Replaced useEffect
-  useEffect(() => {
-    if (initialState.runEffect) {
+    if (initialState.runEffect && !initialIdeaGenerationAttempted.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       generateIdeas(initialState.data);
+      initialIdeaGenerationAttempted.current = true;
     }
   }, [initialState, generateIdeas]);
+
+  const handleFormSubmitFromFormPage = (submittedData: FormData) => {
+    setShowForm(false);
+    generateIdeas(submittedData);
+  };
 
   // --- JSX Rendering ---
   return (
@@ -239,7 +167,6 @@ export default function Home() {
           <FormPage onFormSubmit={handleFormSubmitFromFormPage} />
         ) : (
           <>
-<<<<<<< HEAD
             {generatedCards.length > 0 ? (
               <SwipeCards initialCards={generatedCards} />
             ) : (
@@ -257,19 +184,6 @@ export default function Home() {
                 </div>
               </>
             )}
-=======
-            <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-8 tracking-tight">
-              Generated Project Idea 💡
-            </h1>
-            <div className="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <h2 className="text-xl font-bold text-gray-700 mb-2">Generated Ideas:</h2>
-              <div
-                className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: ideaResponse.replace(/\n/g, '<br/>') }}
-              />
-              {ideaResponse === "" && <p className="text-gray-500">Submit the form to generate project ideas.</p>}
-            </div>
->>>>>>> 44b5a4dc49ea757e9790ba8309edc6b37d764105
             <button
               onClick={() => setShowForm(true)}
               className="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition duration-150"
