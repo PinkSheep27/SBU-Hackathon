@@ -1,14 +1,20 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// 1. Import your two new fonts
+import { Concert_One, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 2. Set up Concert One as the body/sans font
+const concertOne = Concert_One({
+  variable: "--font-sans", // Use --font-sans for the default
   subsets: ["latin"],
+  weight: "400", // This font only has one weight
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// 3. Set up Pixelify Sans as the header font
+const pixelifySans = Pixelify_Sans({
+  variable: "--font-header", // Use a custom --font-header variable
   subsets: ["latin"],
 });
 
@@ -24,8 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* 4. Apply the new variables to the body */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${concertOne.variable} ${pixelifySans.variable} antialiased`}
       >
         {children}
       </body>

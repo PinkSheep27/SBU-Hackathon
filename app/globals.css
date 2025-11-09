@@ -1,26 +1,45 @@
+/* 1. Import BOTH fonts in one go */
+@import url('https://fonts.googleapis.com/css2?family=Concert+One&family=Pixelify+Sans:wght@400;700&display=swap');
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FEEEDF;
+  --foreground: #DEE5D4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+
+  /* 3. Assign fonts to Tailwind's theme */
+  
+  /* --font-sans is for regular text (Concert One) */
+  --font-sans: var(--font-concert-one);
+  
+  /* We add a new font family for headers (Pixelify Sans) */
+  /* This also creates a 'font-header' utility class */
+  --font-header: var(--font-pixelify);
+
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #e2dede;
+    --foreground: #000000;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  /* 4. Body uses --font-sans (Concert One) by default */
+  font-family: var(--font-sans);
+}
+
+/* 5. (Optional but helpful) Apply header font to h-tags by default */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-header);
 }
