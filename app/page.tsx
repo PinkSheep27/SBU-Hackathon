@@ -1,6 +1,7 @@
 import React from "react";
 // import Image from "next/image"; // Removed Next.js import
-// import Link from "next/link"; // Removed Next.js import
+import Link from "next/link"; // Removed Next.js import
+
 
 export default function Home() {
   return (
@@ -21,9 +22,6 @@ export default function Home() {
           <Link href="/Dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             Dashboard
           </Link>
-          <Link href="/cards" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Cards
-          </Link>
         </div>
       </header>
 
@@ -35,7 +33,7 @@ export default function Home() {
               style={{ color: "#173C46" }}
               className="max-w-xs text-5xl font-semibold leading-tight tracking-tight text-black"
             >
-              Welcome! This is HackSpark
+              Welcome! This is SparkBot
             </h1>
             <p
               style={{ color: "#173C46" }}
@@ -44,12 +42,11 @@ export default function Home() {
               Got a hackathon coming up? Tell us your track, your team’s skills, what you’re passionate about, and more — and we’ll provide you with the perfect project idea!{" "}
             </p>
 
-            <Link
-              href="/Dashboard"
+            <button
               style={{ backgroundColor: "#173C46", color: "white" }}
               className="inline-block px-5 py-2.5 text-lg rounded-md shadow-md font-semibold hover:opacity-90 transition-opacity"
             >
-              <Link href="/dashboard">Get Started</Link>
+              <Link href="/Dashboard">Get Started</Link>
             </button>
           </div>
 
@@ -58,7 +55,12 @@ export default function Home() {
               className="w-full max-w-[450px] h-[350px] rounded-xl shadow-md flex items-center justify-center text-white"
               style={{ backgroundColor: "#173C46" }}
             >
-              Image Placeholder
+              <img
+                src="s1.jpeg"
+                alt=" Img"
+                width={350}
+                height={350}
+              />
             </div>
           </div>
         </div>
@@ -81,11 +83,8 @@ export default function Home() {
                 style={{ backgroundColor: "#B8C0AD" }}
               >
                 <h2 className="text-3xl font-semibold text-black mb-3">
-                  First Text Block
+                  Input your hackathon preferences and team skills to get tailored project ideas.
                 </h2>
-                <p className="text-xl text-zinc-800">
-                  This is the content for the first text block. You can write anything here.
-                </p>
               </div>
               {/* Box 2 (Image) - Standardized Size */}
               <div className="w-full max-w-lg flex justify-center items-center">
@@ -93,7 +92,12 @@ export default function Home() {
                   className="w-full h-[350px] rounded-xl shadow-md flex items-center justify-center text-zinc-800"
                   style={{ backgroundColor: "#B8C0AD" }}
                 >
-                  Image Placeholder
+                    <img
+                src="s2.jpeg"
+                alt=" Img"
+                width={400}
+                height={400}
+                />
                 </div>
               </div>
             </div>
@@ -106,7 +110,12 @@ export default function Home() {
                   className="w-full h-[350px] rounded-xl shadow-md flex items-center justify-center text-zinc-800"
                   style={{ backgroundColor: "#B8C0AD" }}
                 >
-                  Image Placeholder
+                    <img
+                src="s3.jpeg"
+                alt=" Img"
+                width={400}
+                height={400}
+                />
                 </div>
               </div>
                {/* Box 4 (Text) - Standardized Size */}
@@ -116,12 +125,8 @@ export default function Home() {
                   style={{ backgroundColor: "#B8C0AD" }}
                 >
                   <h2 className="text-3xl font-semibold text-black mb-3">
-                    Second Text Block
+                    Choose between generated project ideas by swiping left or right on the cards.
                   </h2>
-                  {/* Fixed the </D> typo to </p> */}
-                  <p className="text-xl text-zinc-800">
-                    This is the content for the second text block. You can write anything here.
-                  </p>
                 </div>
               </div>
             </div>
@@ -134,11 +139,8 @@ export default function Home() {
                 style={{ backgroundColor: "#B8C0AD" }}
               >
                 <h2 className="text-3xl font-semibold text-black mb-3">
-                  Third Text Block
+                  Work on your chosen project idea with your team using our integrated chat-based AI assistant.
                 </h2>
-                <p className="text-xl text-zinc-800">
-                  This is the content for the third text block. You can write anything here.
-                </p>
               </div>
               {/* Box 6 (Image) - Standardized Size */}
               <div className="w-full max-w-lg flex justify-center items-center">
@@ -146,7 +148,12 @@ export default function Home() {
                   className="w-full h-[350px] rounded-xl shadow-md flex items-center justify-center text-zinc-800"
                   style={{ backgroundColor: "#B8C0AD" }}
                 >
-                  Image Placeholder
+                    <img
+                src="s5.jpeg"
+                alt=" Img"
+                width={420}
+                height={450}
+                />
                 </div>
               </div>
             </div>

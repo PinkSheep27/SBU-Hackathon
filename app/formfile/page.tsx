@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import FormPage from './FormPage';
 import { ChatSetting } from "../exportType/types";
 import { FormData, PROFICIENCY_LEVELS } from './formTypes';
+import { saveProject } from "../utils/storage";
 
 // --- Helper function to get default form data ---
 const getDefaultFormData = (): FormData => ({
@@ -44,21 +46,21 @@ const getInitialState = () => {
 // This makes it a true constant.
 const AI_SETTINGS: ChatSetting = {
   temperature: 1,
-  model: "gemini-2.5-pro",
-  sysTemInstructions: `You are an elite hackathon idea generator. Your task is to generate five different creative, feasible, and relevant project idea. 
-The output MUST be in Markdown format and strictly follow this structure:
-### Project Idea Title
-**Relevance to Theme:** [Explain briefly]
-**Core Technology:** [List 3-5 primary technologies]
-**Team Fit:** [How the team's skills apply]
-**Concept:** [A concise, single paragraph description of the product and its primary function.]
-**Bonus Feature:** [A single, ambitious feature to impress judges.]`,
+  model: "gemini-2.5-flash-lite",
+  systemInstructions: `You are an elite hackathon idea generator. Your task is to generate five different creative, feasible, and relevant project idea. 
+    The output MUST be in Markdown format and strictly follow this structure:
+    ### Project Idea Title
+    **Relevance to Theme:** [Explain briefly]
+    **Core Technology:** [List 3-5 primary technologies]
+    **Team Fit:** [How the team's skills apply]
+    **Concept:** [A concise, single paragraph description of the product and its primary function.]
+    **Bonus Feature:** [A single, ambitious feature to impress judges.]`,
 };
 
 // ------------------------------------------------
 
 export default function Home() {
-  
+  const router = useRouter();
   const [initialState] = useState(getInitialState);
   const [showForm, setShowForm] = useState(initialState.showForm);
   const [formData, setFormData] = useState<FormData>(initialState.data);
@@ -75,6 +77,10 @@ export default function Home() {
   // Wrapped generateIdeas in useCallback
   const generateIdeas = useCallback(async (dataToProcess: FormData) => {
     // 1. Data Cleaning
+    const newProject = saveProject(dataToProcess);
+    const projectId = newProject.id;
+    const projectTitle = newProject.title;
+
     const submissionData: FormData = {
         ...dataToProcess,
         tracksStack: dataToProcess.tracksStack.filter(tracks => tracks.trim() !== ''),
@@ -94,8 +100,7 @@ export default function Home() {
     Team Members and Skills: ${submissionData.students.map(s => 
         `${s.studentName || 'Unamed Member'} (Skills: ${s.skills.map(sk => `${sk.skillName} - ${sk.proficiency}`).join(', ')})`
     ).join('; ')}
-    
-    Using the SYSTEM INSTRUCTIONS, generate 5 project ideas based on the data above.`;
+    `;
 
     // 3. API Call
     try {
@@ -116,8 +121,11 @@ export default function Home() {
             setIdeaResponse(`Error: Failed to generate idea. ${data.error || response.statusText}`);
             return;
         }
-        setIdeaResponse(data.response);
-        
+       localStorage.setItem('temp_aiResponse', data.response);
+
+        // Redirect to the cards page with the new project ID and title
+        router.push(`/cards?projectId=${encodeURIComponent(projectId)}&projectTitle=${encodeURIComponent(projectTitle)}`);
+
     // FIX 2 (Unexpected any): Changed 'any' to 'unknown' and added a type check.
     } catch (error: unknown) {
         console.error("Request Failed:", error);
@@ -127,10 +135,7 @@ export default function Home() {
         }
         setIdeaResponse(errorMessage);
     }
-    // FIX 3 (Linter): Disable the faulty memoization rule.
-    // The empty array is correct because setIdeaResponse is a stable state setter.
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  }, []);
+  }, [router]);
 
   // Replaced useEffect
   useEffect(() => {

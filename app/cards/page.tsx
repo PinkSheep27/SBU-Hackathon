@@ -26,9 +26,13 @@ const parseAiResponse = (markdownString: string): CardData[] => {
 
   ideaBlocks.forEach((block, index) => {
     const titleMatch = block.match(/^(.*?)\n/);
-    const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
-    const tracksMatch = block.matchAll(/\*\*(?!Concept|Relevance|Core|Team|Bonus)(.*?):\*\*/g);
-    const tracks = [...tracksMatch].map(match => match[1].trim());
+    const conceptMatch = block.match(/\*\*Concept:\*\*\s*([\s\S]*?)(?=\n\*\*|$)/s); // Improved summary regex
+    
+    // --- THIS IS THE FIX ---
+    // It now looks for "**Core Technology:**" and splits the technologies by comma
+    const techMatch = block.match(/\*\*Core Technology:\*\*\s*(.*)/);
+    const tracks = techMatch ? techMatch[1].split(',').map(t => t.trim()) : ["General"];
+    // -----------------------
 
     ideas.push({
       id: index + 1,
@@ -60,13 +64,9 @@ export default function CardsPage() {
       setCards(parsedCards.reverse());
       setInitialCards(parsedCards.reverse());
     } else {
-      console.warn("No AI response found. Using hardcoded cards as fallback.");
-      const hardcodedCards: CardData[] = [
-        { id: 1, title: "AI Project Idea 1", summary: "A cool project...", tracks: ["AI", "Web"] },
-        { id: 2, title: "AI Project Idea 2", summary: "Another cool project...", tracks: ["Mobile", "Game"] },
-      ];
-      setCards(hardcodedCards.reverse());
-      setInitialCards(hardcodedCards.reverse());
+      // If no AI response is found, we do nothing.
+      // The 'cards' state will remain empty, showing the "No more cards!" UI.
+      console.warn("No 'temp_aiResponse' found in localStorage. Displaying empty deck.");
     }
     setIsLoading(false);
   }, []);

@@ -41,7 +41,7 @@ function ChatbotContent() {
   const historyRef = useRef<ChatHistory>(history);
   const [settings] = useState<ChatSetting>({
     temperature: 1,
-    model: "gemini-2.5-pro",
+    model: "gemini-2.5-flash-lite",
     systemInstructions: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
   });
 

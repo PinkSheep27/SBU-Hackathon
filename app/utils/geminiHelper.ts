@@ -15,8 +15,8 @@ export async function chatToGemini(
     settings:ChatSetting
 ):Promise<string>{
         const model = genAI.getGenerativeModel({
-            model:settings.model || "gemini-2.5-flash",
-            systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summery first before going to detail",
+            model:settings.model || "gemini-2.5-flash-lite",
+            systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summary first before going to detail",
             });
         
         const generationConfig:GenerateConfig = {

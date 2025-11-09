@@ -1,19 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getStoredProjects, StoredProject } from "../utils/storage";
+import { getStoredProjects, StoredProject,setProjectForEditing } from "../utils/storage";
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [sideBarOpen, setSidebarOpen] = useState(true);
   const [sortOrder, setSortOrder] = useState("newest");
   const [projects, setProjects] = useState<StoredProject[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const storedProjects = getStoredProjects();
     setProjects(storedProjects);
   }, []);
+
+  const handleRerun = (project: StoredProject) => {
+    setProjectForEditing(project);
+    router.push('/formfile');
+  };
 
   const sortedProjects = [...projects].sort((a, b) => {
     const dateA = new Date(a.id).getTime();
@@ -39,15 +46,17 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 dark:bg-black font-sans transition-all duration-300">
+    <div className="flex min-h-screen bg-zinc-50 font-sans transition-all duration-300"
+      style={{ backgroundColor: '#FFEAE1' }}>
       <aside
         className={`${sideBarOpen ? "w-64" : "w-16"
-          } bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300 flex flex-col`}
+          }  transition-all duration-300 flex flex-col `}
+        style={{ backgroundColor: 'rgba(153, 164, 138, 0.9)' }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center justify-between p-4">
           {sideBarOpen && (
             <span className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
-              More
+              SparkBot
             </span>
           )}
           <button
@@ -85,7 +94,7 @@ export default function Dashboard() {
 
             <div className="flex-1 flex flex-col min-w-0">
                 <header
-                    className="sticky top-0 z-10 backdrop-blur-sm border-b"
+                    className="sticky top-0 z-10 backdrop-blur-sm"
                     style={{ backgroundColor: 'rgba(153, 164, 138, 0.9)', borderColor: '#8A947E' }} // Top bar background (semi-transparent) and border
                 >
                     <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
@@ -134,16 +143,37 @@ export default function Dashboard() {
 
                     <section>
                         <ul className="space-y-3">
-                            {filtered.map((project, index) => (
+                            {filtered.map((project) => (
                                 <li
-                                    key={index}
-                                    className="flex justify-between p-4 border rounded-md"
-                                    style={{ backgroundColor: '#B8C0AD', color: '#222', borderColor: '#A9B29E' }} // Project boxes
+                                    key={project.id}
+                                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border rounded-md"
+                                    style={{ backgroundColor: '#B8C0AD', color: '#222', borderColor: '#A9B29E' }}
                                 >
-                                    <span>{project.name}</span>
-                                    <span className="text-gray-700 text-sm">
-                                        Created: {project.createdAt}
-                                    </span>
+                                    <div className="flex-1 mb-2 sm:mb-0">
+                                        <Link
+                                            href={`/chatbot?projectId=${encodeURIComponent(project.id)}&projectTitle=${encodeURIComponent(project.title)}`}
+                                            className="text-lg font-semibold text-[#173C46] hover:underline"
+                                        >
+                                            {project.title}
+                                        </Link>
+                                        
+                                        <span className="block text-gray-700 text-sm mt-1">
+                                            Created: {new Date(project.id).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleRerun(project)}
+                                            className="px-3 py-1 text-sm font-medium rounded-md shadow hover:opacity-90"
+                                            style={{
+                                                color: 'white',
+                                                backgroundColor: '#EA627F'
+                                            }}
+                                        >
+                                            Re-run
+                                        </button>
+                                    </div>
                                 </li>
                             ))}
                             {filtered.length === 0 && (
