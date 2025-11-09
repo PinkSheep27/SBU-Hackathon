@@ -14,6 +14,7 @@ export interface GenerateConfig {
     temperature: number;
     topP: number;
     responseMimeType: string;
+    maxOutputTokens?: number;
 }
 
 export interface ChatSetting {

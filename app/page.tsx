@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -8,19 +9,19 @@ export default function Home() {
     >
       <header className="absolute top-6 left-8 right-8 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
+          
+          src="/logo.svg"
+          alt="logo.js logo"
           width={100}
           height={20}
           priority
         />
         <div className="flex items-center gap-4">
-          <a href="/signin" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Sign in
+          <a href="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Dashboard
           </a>
-          <a href="/register" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Register
+          <a href="/cards" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Cards
           </a>
         </div>
       </header>
@@ -39,29 +40,13 @@ export default function Home() {
               className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400"
             >
               Got a hackathon coming up? Tell us your track, your team’s skills, what you’re passionate about, and more — and we’ll provide you with the perfect project idea!{" "}
-              {/* <a
-                href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-                className="font-medium text-zinc-950 dark:text-zinc-50"
-              >
-                Templates
-              </a>{" "}
-              or the{" "}
-              <a
-                href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-                className="font-medium text-zinc-950 dark:text-zinc-50"
-              >
-                Learning
-              </a>{" "} */}
-              {/* center. */}
             </p>
 
-            {/* <ProtectedNavButton>Get Started</ProtectedNavButton> */}
             <button
               style={{ backgroundColor: "#173C46", color: "white" }}
               className="px-4 py-1.5 rounded-md shadow-md font-semibold hover:opacity-90 transition-opacity"
             >
-              {/* {children} */}
-              Get Started
+              <Link href="/dashboard">Get Started</Link>
             </button>
           </div>
 
