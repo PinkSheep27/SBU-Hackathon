@@ -9,18 +9,26 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
+const DEFAULT_CHAT_SETTINGS: ChatSetting = {
+    model: "gemini-2.5-flash-lite",
+    systemInstructions: "you are going to create a project idea, explain it in summary first before going to detail",
+    temperature: 1
+};
+
 export async function chatToGemini(
     userMessage:string ,
     history:ChatHistory, 
     settings:ChatSetting
 ):Promise<string>{
+        const effectiveSettings = { ...DEFAULT_CHAT_SETTINGS, ...settings };
+
         const model = genAI.getGenerativeModel({
-            model:settings.model || "gemini-2.5-flash-lite",
-            systemInstruction: settings.systemInstructions || "you are going to create a project idea, explain it in summary first before going to detail",
+            model: effectiveSettings.model,
+            systemInstruction: effectiveSettings.systemInstructions,
             });
         
         const generationConfig:GenerateConfig = {
-            temperature : settings.temperature || 1,
+            temperature : effectiveSettings.temperature,
             topP : 0.9,
             responseMimeType: "text/plain",
             maxOutputTokens: 1900, // Increased to allow for longer responses
