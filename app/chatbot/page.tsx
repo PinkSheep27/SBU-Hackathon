@@ -4,17 +4,24 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ChatInput from "../utils/component/ui/ChatInput";
 import MessageWindow from "../utils/component/ui/MessageWindow";
-import { ChatHistory, ChatSetting, Message , MessageRole } from "@/app/exportType/types";
+import { ChatHistory, ChatSetting, Message, MessageRole } from "@/app/exportType/types";
 
-export default function Home(){
+export default function Home() {
   const [history, setHistory] = useState<ChatHistory>([])
   const [loading, setLoading] = useState(false);
   const historyRef = useRef<ChatHistory>([]); // Create a ref for history
   const [settings] = useState<ChatSetting>({
+<<<<<<< HEAD
     temperature:1,
     model:"gemini-2.5-pro",
     systemInstruction:"you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
     
+=======
+    temperature: 1,
+    model: "gemini-2.5-pro",
+    sysTemInstructions: "you are a ai helper. Your goal is to expand the project idea and interact with the user on any problem or question they have with the project. You are not allow to code the project for them and stray away from your job"
+
+>>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
   });
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,23 +31,27 @@ export default function Home(){
     historyRef.current = history; // Keep the ref updated with the latest history
   }, [history]);
 
-  const handleSend = useCallback(async(message:string)=>{
-    const newUserMessage:Message = {
-      role:"user",
-      parts:[{text:message}],
+  const handleSend = useCallback(async (message: string) => {
+    const newUserMessage: Message = {
+      role: "user",
+      parts: [{ text: message }],
     };
 
     setHistory(prevHistory => {
       const currentHistory = [...prevHistory, newUserMessage];
-      
+
       const sendApiRequest = async () => {
+<<<<<<< HEAD
         setLoading(true);
         try{
+=======
+        try {
+>>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
           const response = await fetch("/api/chat", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-              },
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               userMessage: message,
               history: historyRef.current, // Use the ref for history
@@ -62,8 +73,8 @@ export default function Home(){
           };
 
           setHistory(prevHistory => [...prevHistory, aiMessage]);
-          
-        } 
+
+        }
         catch (error) {
           console.error("Request Failed:", error);
         }
@@ -82,7 +93,7 @@ export default function Home(){
 
       if (title && summary) {
         const message = `Explain the project titled '${title}' with the summary '${summary}' in detail, and suggest suitable roles for a team working on it.`;
-        
+
         const newUserMessage: Message = {
           role: "user",
           parts: [{ text: message }],
@@ -136,6 +147,7 @@ export default function Home(){
 
   return (
     <div className="flex flex-col py-32">
+<<<<<<< HEAD
       <button
         onClick={() => router.push('/Dashboard')}
         className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -144,6 +156,10 @@ export default function Home(){
       </button>
       <MessageWindow history={history} isLoading={loading} />
       <ChatInput onSend={handleSend} onOpenSettings={() => {}} />
+=======
+      <MessageWindow history={history} />
+      <ChatInput onSend={handleSend} onOpenSettings={() => { }} />
+>>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
     </div>
   );
 }

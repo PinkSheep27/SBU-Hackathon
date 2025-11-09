@@ -1,9 +1,8 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
 // 1. Import your two new fonts
 import { Concert_One, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
+// import { Auth0Provider } from "@auth0/nextjs-auth0";
 
 // 2. Set up Concert One as the body/sans font
 const concertOne = Concert_One({

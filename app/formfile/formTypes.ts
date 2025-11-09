@@ -13,7 +13,7 @@ export interface Student {
 // Updated main form interface
 export interface FormData {
   Hackathon: string;
-  mainTheme: string; 
+  mainTheme: string;
   tracksStack: string[];
   students: Student[]; // Array for dynamic students
 }

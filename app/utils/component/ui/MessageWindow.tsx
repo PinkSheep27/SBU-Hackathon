@@ -1,8 +1,9 @@
 "use client";
 import { useRef, useEffect } from "react";
 import { ChatHistory } from "@/app/exportType/types";
-import {User, Bot} from "lucide-react"
+import { User, Bot } from "lucide-react"
 
+<<<<<<< HEAD
 interface MessageWindowProps{
     history :ChatHistory;
     isLoading: boolean;
@@ -10,22 +11,30 @@ interface MessageWindowProps{
 
 export default function MessageWindow({history, isLoading}:MessageWindowProps){
     const messageEndRef = useRef<HTMLDivVElement>(null);
+=======
+interface MessageWindowProps {
+    history: ChatHistory
+}
 
-    useEffect(() =>{
-        messageEndRef.current?.scrollIntoView({behavior:"smooth"});
+export default function MessageWindow({ history }: MessageWindowProps) {
+    const messageEndRef = useRef<HTMLDivElement>(null);
+>>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [history]);
 
-    return(
+    return (
         <div className="flex-1 p-3 overflow-y-auto">
             <div className="max-w-3xl mx-auto">
-                {history.map((msg,index)=>{
+                {history.map((msg, index) => {
                     const isUser = msg.role === "user"
 
                     return (
-                        <div 
-                        key={index} 
-                        className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-                            {!isUser &&(
+                        <div
+                            key={index}
+                            className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                            {!isUser && (
                                 <div className="mr-2">
                                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray">
                                         <Bot size={15} className="text-gray-700">
@@ -42,14 +51,15 @@ export default function MessageWindow({history, isLoading}:MessageWindowProps){
                                     <span key={idx}>{part.text}</span>))}
                                 </div>
                             </div>
-                        {isUser && (
-                            <div className="ml-2">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-500">
-                                    <User size={16} className="text-white" />
+                            {isUser && (
+                                <div className="ml-2">
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-500">
+                                        <User size={16} className="text-white" />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                         </div>
+<<<<<<< HEAD
                         );
                     })}
         
@@ -69,7 +79,14 @@ export default function MessageWindow({history, isLoading}:MessageWindowProps){
                 )}
         {/* Invisible element to help scroll to bottom */}
         <div ref={messageEndRef} />
+=======
+                    );
+                })}
+
+                {/* Invisible element to help scroll to bottom */}
+                <div ref={messageEndRef} />
+            </div>
+>>>>>>> ce9e6f34ed31b7bff736cc9ba9a1b8dcdec85f3a
         </div>
-    </div>
     );
 }
