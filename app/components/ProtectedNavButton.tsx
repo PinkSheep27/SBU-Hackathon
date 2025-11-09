@@ -19,7 +19,9 @@ export default function ProtectedNavButton({
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     if (token) {
-      router.push("/dashboard");
+      // The app route folder is named `Dashboard` (capital D).
+      // Use the same path casing to avoid 404s on Next.js routes.
+      router.push("/Dashboard");
     } else {
       router.push("/auth/login");
     }
