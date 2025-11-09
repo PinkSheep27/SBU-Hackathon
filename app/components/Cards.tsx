@@ -173,6 +173,9 @@ const Card: React.FC<CardProps> = ({ cardData, colorWay, isFront, onSwipe, onRig
       drag={isFront ? "x" : false}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       onDragEnd={handleDragEnd}
+      initial={{ x: 500, opacity: 0 }} // Start off-screen to the right and invisible
+      animate={{ x: 0, opacity: 1 }} // Animate to its natural position and fully visible
+      transition={{ type: "spring", stiffness: 100, damping: 20 }} // Smooth spring animation
     >
       {/* Accept/Reject Badges */}
       <motion.div
