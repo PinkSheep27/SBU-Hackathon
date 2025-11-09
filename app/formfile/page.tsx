@@ -1,8 +1,8 @@
 "use client";
-
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import FormPage from './FormPage';
 import { CardData } from "../exportType/types";
+import SwipeCards from "../components/Cards";
 import { ChatSetting } from "../exportType/types";
 import { FormData, PROFICIENCY_LEVELS } from './formTypes';
 import { saveProject } from '../utils/storage';
@@ -42,35 +42,53 @@ const getInitialState = () => {
   };
 };
 
-const AI_SETTINGS: ChatSetting = {
-  temperature: 1,
-  model: "gemini-2.5-pro",
-  systemInstructions: `You are an elite hackathon idea generator. Your task is to generate five different creative, feasible, and relevant project idea. 
-    The output MUST be in Markdown format and strictly follow this structure:
-    ### Project Idea Title
-    **Relevance to Theme:** [Explain briefly]
-    **Core Technology:** [List 3-5 primary technologies]
-    **Team Fit:** [How the team's skills apply]
-    **Concept:** [A concise, single paragraph description of the product and its primary function.]
-    **Bonus Feature:** [A single, ambitious feature to impress judges.]`
-};
-
 export default function Home() {
+
+  const [formData, setFormData] = useState<FormData>(getDefaultFormData());
+  const [ideaResponse, setIdeaResponse] = useState<string>("");
+  const [generatedCards, setGeneratedCards] = useState<CardData[]>([]); // New state for parsed cards
   const [initialState] = useState(getInitialState);
   const [showForm, setShowForm] = useState(initialState.showForm);
-  const [formData, setFormData] = useState<FormData>(initialState.data);
-  const [ideaResponse, setIdeaResponse] = useState<string>("");
+  const initialIdeaGenerationAttempted = useRef(false);
+
   const router = useRouter();
+  const [settings] = useState<ChatSetting>({
+    temperature: 1,
+    model: "gemini-2.5-flash-lite",
+    systemInstructions: `You are an elite hackathon idea generator. Your task is to choose at lease two track and generate five different creative, feasible, and relevant project idea.
+The output MUST be in Markdown format and strictly follow this structure:
+### Project Idea Title
+**Track** [print out the track you used]
+**Concept:** [A concise, single paragraph description of the product and its primary function.]`,
+  });
 
-  const handleFormSubmitFromFormPage = (submittedData: FormData) => {
-    const savedProject = saveProject(submittedData);
-    if (typeof window !== 'undefined') localStorage.removeItem('formData');
-    setFormData(submittedData);
-    setShowForm(false);
-    generateIdeas(submittedData, savedProject.id);
-  };
+  const generateIdeas = useCallback(async (dataToProcess: FormData) => {
+    const parseAiResponse = (markdownString: string): CardData[] => {
+      console.log("Raw AI Response:", markdownString);
+      const ideas: CardData[] = [];
+      const ideaBlocks = markdownString.split("### ").filter(block => block.trim() !== "");
 
-  const generateIdeas = useCallback(async (dataToProcess: FormData, projectId: string) => {
+      ideaBlocks.forEach((block, index) => {
+        const titleMatch = block.match(/^(.*?)(?=\n\*\*Track\*\*|$)/s);
+        const trackMatch = block.match(/\*\*Track\*\*\s*:\s*(.*?)(?=\n\*\*Concept\*\*|$)/s);
+        const conceptMatch = block.match(/\*\*Concept:\*\*\s*(.*)/s);
+
+        const title = titleMatch ? titleMatch[1].trim() : `Idea ${index + 1}`;
+        const summary = conceptMatch ? conceptMatch[1].trim() : "No concept provided.";
+        const tracksRaw = trackMatch ? trackMatch[1].trim() : "";
+        const tracks = tracksRaw.split(',').map(track => track.trim()).filter(track => track !== '');
+
+        ideas.push({
+          id: index + 1,
+          title,
+          tracks,
+          summary,
+        });
+      });
+      console.log("Parsed Cards:", ideas);
+      return ideas;
+    };
+
     const submissionData: FormData = {
       ...dataToProcess,
       tracksStack: dataToProcess.tracksStack.filter(tracks => tracks.trim() !== ''),
@@ -94,13 +112,15 @@ export default function Home() {
 
     try {
       setIdeaResponse("Generating ideas... Please wait.");
-
+      setGeneratedCards([]);
       const response = await fetch("/api/generate-idea", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           prompt: prompt,
-          settings: AI_SETTINGS,
+          settings: settings,
         }),
       });
 
@@ -112,6 +132,8 @@ export default function Home() {
         return;
       }
       setIdeaResponse(data.response);
+
+      const projectId = data.projectId ?? `p-${Date.now()}`;
 
       if (typeof window !== 'undefined') localStorage.setItem('temp_aiResponse', data.response);
 
@@ -127,12 +149,19 @@ export default function Home() {
     }
   }, [router]);
 
+  // Replaced useEffect
   useEffect(() => {
     if (initialState.runEffect) {
-      // generateIdeas(initialState.data, "some-resumed-id");
+      //generateIdeas(initialState.data, "some-resumed-id");
     }
   }, [initialState, generateIdeas]);
 
+  const handleFormSubmitFromFormPage = (submittedData: FormData) => {
+    setShowForm(false);
+    generateIdeas(submittedData);
+  };
+
+  // --- JSX Rendering ---
   return (
     <main className="min-h-screen bg-gray-50 flex items-start justify-center p-4 sm:p-6 font-inter">
       <div className="w-full max-w-2xl bg-white p-8 shadow-2xl rounded-xl mt-8">
@@ -140,17 +169,23 @@ export default function Home() {
           <FormPage onFormSubmit={handleFormSubmitFromFormPage} />
         ) : (
           <>
-            <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-8 tracking-tight">
-              Generated Project Idea 💡
-            </h1>
-            <div className="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <h2 className="text-xl font-bold text-gray-700 mb-2">Generated Ideas:</h2>
-              <div
-                className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: ideaResponse.replace(/\n/g, '<br/>') }}
-              />
-              {ideaResponse === "" && <p className="text-gray-500">Submit the form to generate project ideas.</p>}
-            </div>
+            {generatedCards.length > 0 ? (
+              <SwipeCards initialCards={generatedCards} />
+            ) : (
+              <>
+                <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-8 tracking-tight">
+                  Generated Project Idea 💡
+                </h1>
+                <div className="mt-8 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <h2 className="text-xl font-bold text-gray-700 mb-2">Generated Ideas:</h2>
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{ __html: ideaResponse.replace(/\n/g, '<br/>') }}
+                  />
+                  {ideaResponse === "" && <p className="text-gray-500">Submit the form to generate project ideas.</p>}
+                </div>
+              </>
+            )}
             <button
               onClick={() => {
                 setShowForm(true);
