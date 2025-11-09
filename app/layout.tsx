@@ -1,5 +1,3 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
 // 1. Import your two new fonts
 import { Concert_One, Pixelify_Sans } from "next/font/google";

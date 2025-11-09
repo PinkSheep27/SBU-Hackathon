@@ -76,7 +76,7 @@ export default function Dashboard() {
                 </div>
 
                 <nav
-                    className={`flex flex-col p-4 gap-3 text-white transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
+                    className={`flex flex-col p-4 gap-3 text-zinc-700 dark:text-zinc-300 transition-opacity duration-200 ${sideBarOpen ? "opacity-100" : "opacity-0"
                         }`}
                 >
                     <a
