@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CardData } from "@/app/exportType/types";
@@ -43,8 +43,14 @@ const parseAiResponse = (markdownString: string): CardData[] => {
   });
   return ideas;
 };
-
-export default function CardsPage() {
+export default function CardsPageWrapper(){
+  return (
+    <Suspense fallback={<div className="grid h-screen w-full place-items-center bg-orange-100"><p>Loading cards...</p></div>}>
+      <CardsPage />
+    </Suspense>
+  );
+}
+function CardsPage() {
   const [cards, setCards] = useState<CardData[]>([]);
   const [initialCards, setInitialCards] = useState<CardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
