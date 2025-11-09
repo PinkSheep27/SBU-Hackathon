@@ -3,7 +3,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import FormPage from './FormPage';
-import { ChatSetting, CardData } from "../exportType/types";
+import { ChatSetting, CardData } from "@/app/exportType/types";
 import { FormData, PROFICIENCY_LEVELS } from './formTypes';
 import SwipeCards from '../cards/page';
 

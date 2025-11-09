@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import ChatInput from "../utils/component/ui/ChatInput";
 import MessageWindow from "../utils/component/ui/MessageWindow";
-import { ChatHistory, ChatSetting, Message , MessageRole } from "./exportType/types";
+import { ChatHistory, ChatSetting, Message , MessageRole } from "@/app/exportType/types";
 
 export default function Home(){
   const [history, setHistory] = useState<ChatHistory>([])
